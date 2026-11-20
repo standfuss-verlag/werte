@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b57d0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Messwerte</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --card: #ffffff;
+  --fg: #111111;
+  --muted: #555555;
+  --line: #7a7a7a;
+  --accent: #0b57d0;
+  --accent-bg: #e3edfd;
+  --ok: #0f5a26;
+  --ok-bg: #e3f5e8;
+  --warn: #7a4a00;
+  --warn-bg: #fff1d6;
+  --err: #a8201a;
+  --err-bg: #fdeceb;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --card: #1b1b1b;
+    --fg: #f2f2f2;
+    --muted: #b8b8b8;
+    --line: #9a9a9a;
+    --accent: #8ab4f8;
+    --accent-bg: #1f3250;
+    --ok: #8fd9a3;
+    --ok-bg: #16301f;
+    --warn: #f5c26b;
+    --warn-bg: #3a2e12;
+    --err: #f2a29c;
+    --err-bg: #3a1a18;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 18px;
+  line-height: 1.4;
+}
+main { max-width: 480px; margin: 0 auto; padding: 16px 16px 110px; }
+h1 { font-size: 26px; font-weight: 600; margin: 8px 0 2px; }
+.datum { font-size: 17px; color: var(--muted); margin: 0 0 16px; }
+fieldset {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px 14px;
+  margin: 0 0 14px;
+  background: var(--card);
+}
+legend { font-size: 19px; font-weight: 600; padding: 0 6px; }
+.reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.feld { display: block; margin-top: 10px; }
+.feld > span { display: block; font-size: 16px; color: var(--muted); margin-bottom: 4px; }
+.mit-einheit { display: flex; align-items: center; gap: 10px; }
+.einheit { font-size: 18px; color: var(--muted); min-width: 52px; }
+input[type="text"], textarea {
+  width: 100%;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+input.zahl { height: 62px; font-size: 32px; font-weight: 600; text-align: center; }
+input.text { height: 54px; font-size: 20px; padding: 0 12px; }
+textarea { font-size: 18px; padding: 10px 12px; min-height: 76px; resize: vertical; }
+input:focus, textarea:focus, button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+input[aria-invalid="true"] { border-color: var(--err); background: var(--err-bg); }
+.chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.chip {
+  min-height: 52px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 18px;
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+}
+.link {
+  margin-top: 12px;
+  min-height: 48px;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 17px;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+.hinweis { font-size: 15px; color: var(--muted); margin: 4px 0 0; }
+.fehlerbox {
+  background: var(--err-bg);
+  color: var(--err);
+  border: 2px solid var(--err);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 17px;
+}
+.fehlerbox ul { margin: 4px 0 0; padding-left: 20px; }
+#erfolg {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border: 2px solid var(--ok);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  font-size: 19px;
+  font-weight: 600;
+}
+.speichern {
+  width: 100%;
+  min-height: 64px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--fg);
+  color: var(--bg);
+  font: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.speichern:active { transform: scale(0.99); }
+.zweit {
+  width: 100%;
+  min-height: 56px;
+  margin-top: 10px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 19px;
+  cursor: pointer;
+}
+#stand { text-align: center; color: var(--muted); font-size: 15px; margin-top: 16px; }
+
+.monat { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 0 8px; }
+.monat button {
+  width: 56px; min-height: 52px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit; font-size: 26px;
+  cursor: pointer;
+}
+.monat .name { flex: 1; text-align: center; font-size: 21px; font-weight: 600; }
+.anzahl { text-align: center; color: var(--muted); font-size: 16px; margin: 0 0 12px; }
+.leer { text-align: center; color: var(--muted); padding: 28px 8px; font-size: 18px; }
+
+.karte {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: var(--card);
+}
+.karte .kopf { font-size: 16px; color: var(--muted); margin-bottom: 6px; }
+.zeile { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+.zeile .titel { font-size: 15px; color: var(--muted); }
+.zeile .wert { font-size: 24px; font-weight: 600; }
+.badge {
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.b0 { background: var(--ok-bg); color: var(--ok); }
+.b1 { background: var(--warn-bg); color: var(--warn); }
+.b2 { background: var(--err-bg); color: var(--err); }
+.notiz { margin-top: 10px; font-size: 17px; }
+.geaendert { margin-top: 6px; font-size: 14px; color: var(--muted); }
+.knoepfe { display: flex; gap: 10px; margin-top: 12px; }
+.knoepfe button {
+  flex: 1;
+  min-height: 52px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit; font-size: 18px;
+  cursor: pointer;
+}
+.knoepfe .gefahr { border-color: var(--err); background: var(--err); color: var(--bg); font-weight: 600; }
+.rueckfrage { margin-top: 12px; padding: 10px 12px; border: 2px solid var(--err); border-radius: 12px; background: var(--err-bg); color: var(--err); font-size: 18px; font-weight: 600; }
+.rueckfrage + .knoepfe { margin-top: 10px; }
+
+.haken { display: flex; align-items: center; gap: 12px; min-height: 52px; font-size: 19px; }
+.haken input { width: 28px; height: 28px; flex: none; }
+.untertitel { font-size: 17px; font-weight: 600; margin: 16px 0 0; }
+.gz { display: grid; grid-template-columns: minmax(0, 1fr) 92px 62px; align-items: center; gap: 8px; margin-top: 8px; }
+.gz label { font-size: 16px; line-height: 1.25; }
+.gz input { height: 50px; font-size: 22px; font-weight: 600; text-align: center; }
+.gz .einheit { font-size: 14px; min-width: 0; }
+
+nav {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+nav button {
+  min-height: 64px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  padding: 0 2px;
+  font: inherit; font-size: 15px;
+  cursor: pointer;
+}
+nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-shadow: inset 0 3px 0 var(--accent); }
+.hinweisbox { border: 2px solid var(--accent); background: var(--accent-bg); color: var(--fg); border-radius: 12px; padding: 12px 14px; margin: 8px 0 14px; font-size: 18px; }
+.hinweisbox .knoepfe { margin-top: 10px; }
+.stat { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 16px; }
+.stat th, .stat td { padding: 7px 3px; border-bottom: 1px solid var(--line); text-align: right; }
+.stat th:first-child, .stat td:first-child { text-align: left; }
+.stat th { font-weight: 600; font-size: 13px; color: var(--muted); }
+.stat td.fett { font-weight: 600; }
+.aktionen { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.aktionen .zweit { margin-top: 0; display: flex; align-items: center; justify-content: center; text-align: center; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.dateiknopf { cursor: pointer; }
+.kleintext { font-size: 15px; color: var(--muted); margin: 8px 0 0; }
+@media (max-width: 340px) { nav button { font-size: 13.5px; } }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div id="erfolg" role="status" hidden></div>
+
+  <section id="ansicht-eintragen">
+    <div id="monatshinweis" class="hinweisbox" hidden>
+      <div id="monatshinweis-text"></div>
+      <div class="knoepfe">
+        <button type="button" id="mh-bericht">Zum Bericht</button>
+        <button type="button" id="mh-aus">Ausblenden</button>
+      </div>
+    </div>
+    <h1 id="eintrag-titel">Neuer Eintrag</h1>
+    <p class="datum" id="datum"></p>
+
+    <form id="formular" novalidate autocomplete="off">
+
+      <fieldset>
+        <legend>Blutdruck</legend>
+        <div class="reihe">
+          <label class="feld"><span>Oben</span>
+            <input class="zahl" type="text" inputmode="numeric" id="sys" maxlength="3" placeholder="0">
+          </label>
+          <label class="feld"><span>Unten</span>
+            <input class="zahl" type="text" inputmode="numeric" id="dia" maxlength="3" placeholder="0">
+          </label>
+        </div>
+        <label class="feld"><span>Puls</span>
+          <input class="zahl" type="text" inputmode="numeric" id="puls" maxlength="3" placeholder="0">
+        </label>
+
+        <button type="button" class="link" id="zweite-knopf" aria-expanded="false" aria-controls="zweite">+ Zweite Messung (freiwillig)</button>
+        <div id="zweite" hidden>
+          <p class="hinweis">Zweite Messung direkt nach der ersten.</p>
+          <div class="reihe">
+            <label class="feld"><span>Oben</span>
+              <input class="zahl" type="text" inputmode="numeric" id="sys2" maxlength="3" placeholder="0">
+            </label>
+            <label class="feld"><span>Unten</span>
+              <input class="zahl" type="text" inputmode="numeric" id="dia2" maxlength="3" placeholder="0">
+            </label>
+          </div>
+          <label class="feld"><span>Puls</span>
+            <input class="zahl" type="text" inputmode="numeric" id="puls2" maxlength="3" placeholder="0">
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Blutzucker</legend>
+        <div class="mit-einheit">
+          <input class="zahl" type="text" inputmode="numeric" id="bz" maxlength="3" placeholder="0" aria-label="Blutzucker in mg/dl">
+          <span class="einheit">mg/dl</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Gewicht</legend>
+        <div class="mit-einheit">
+          <input class="zahl" type="text" inputmode="decimal" id="gewicht" maxlength="5" placeholder="0" aria-label="Gewicht in Kilogramm">
+          <span class="einheit">kg</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Zeitpunkt <span style="font-weight:400;font-size:16px;color:var(--muted)">(freiwillig)</span></legend>
+        <div class="chips" id="chips">
+          <button type="button" class="chip" aria-pressed="false" data-wert="morgens">morgens</button>
+          <button type="button" class="chip" aria-pressed="false" data-wert="mittags">mittags</button>
+          <button type="button" class="chip" aria-pressed="false" data-wert="abends">abends</button>
+          <button type="button" class="chip" aria-pressed="false" data-wert="nüchtern">nüchtern</button>
+          <button type="button" class="chip" aria-pressed="false" data-wert="vor dem Essen">vor dem Essen</button>
+          <button type="button" class="chip" aria-pressed="false" data-wert="nach dem Essen">nach dem Essen</button>
+        </div>
+        <p class="hinweis">Nochmal antippen, um die Auswahl zu entfernen.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Notiz <span style="font-weight:400;font-size:16px;color:var(--muted)">(freiwillig)</span></legend>
+        <textarea id="notiz" maxlength="300" placeholder="z. B. Spaziergang, Medikament" aria-label="Notiz"></textarea>
+      </fieldset>
+
+      <div id="fehler" class="fehlerbox" role="alert" hidden></div>
+
+      <button type="submit" class="speichern" id="speichern-knopf">Speichern</button>
+      <button type="button" class="zweit" id="abbrechen-knopf" hidden>Abbrechen</button>
+    </form>
+
+    <p id="stand"></p>
+  </section>
+
+  <section id="ansicht-verlauf" hidden>
+    <h1>Verlauf</h1>
+    <div class="monat">
+      <button type="button" id="monat-zurueck" aria-label="Voriger Monat">&lsaquo;</button>
+      <div class="name" id="monat-name" aria-live="polite"></div>
+      <button type="button" id="monat-vor" aria-label="Nächster Monat">&rsaquo;</button>
+    </div>
+    <p class="anzahl" id="monat-anzahl"></p>
+    <div id="liste"></div>
+  </section>
+
+  <section id="ansicht-bericht" hidden>
+    <h1>Bericht</h1>
+    <div class="monat">
+      <button type="button" id="b-zurueck" aria-label="Voriger Monat">&lsaquo;</button>
+      <div class="name" id="b-name" aria-live="polite"></div>
+      <button type="button" id="b-vor" aria-label="Nächster Monat">&rsaquo;</button>
+    </div>
+    <p class="anzahl" id="b-anzahl"></p>
+    <div id="b-tabelle"></div>
+    <p class="kleintext" id="b-fussnote" hidden>Zweite Messungen zählen als eigene Messwerte.</p>
+
+    <div id="b-fehler" class="fehlerbox" role="alert" hidden></div>
+    <div class="aktionen">
+      <button type="button" class="speichern" id="b-pdf">Monatsbericht als PDF</button>
+      <button type="button" class="zweit" id="b-csv">Monat als Excel-Datei (CSV)</button>
+    </div>
+
+    <fieldset style="margin-top:20px">
+      <legend>Mehr</legend>
+      <div class="aktionen" style="margin-top:0">
+        <button type="button" class="zweit" id="b-jahr">Jahresbericht als PDF</button>
+        <button type="button" class="zweit" id="b-alle">Alle Daten als Excel-Datei (CSV)</button>
+        <button type="button" class="zweit" id="b-backup">Datensicherung speichern</button>
+        <label class="zweit dateiknopf" for="b-restore">Datensicherung einlesen</label>
+        <input type="file" class="sr-only" id="b-restore" accept=".json,application/json">
+      </div>
+      <div id="b-restore-box" class="hinweisbox" hidden style="margin-top:12px">
+        <div id="b-restore-text"></div>
+        <div class="knoepfe">
+          <button type="button" id="b-restore-ja">Übernehmen</button>
+          <button type="button" id="b-restore-nein">Abbrechen</button>
+        </div>
+      </div>
+      <p class="kleintext">Die Dateien gehen über das Teilen-Menü des Handys raus, zum Beispiel per E-Mail oder zum Speichern. Wenn gar nichts passiert, erlaubt der Browser an dieser Stelle keine Downloads.</p>
+    </fieldset>
+  </section>
+
+  <section id="ansicht-einstellungen" hidden>
+    <h1>Einstellungen</h1>
+
+    <fieldset>
+      <legend>Persönliche Angaben</legend>
+      <p class="hinweis">Erscheinen oben im Bericht für den Arzt. Sie bleiben auf diesem Gerät.</p>
+      <label class="feld"><span>Name</span>
+        <input class="text" type="text" id="set-name" maxlength="60" autocomplete="off">
+      </label>
+      <label class="feld"><span>Geburtsdatum (TT.MM.JJJJ)</span>
+        <input class="text" type="text" inputmode="numeric" id="set-geb" maxlength="10" placeholder="01.02.1950" autocomplete="off">
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pflichtangaben</legend>
+      <p class="hinweis">Ohne Haken genügt ein beliebiger Messwert pro Eintrag.</p>
+      <label class="haken"><input type="checkbox" id="pf-bd">Blutdruck immer verlangen</label>
+      <label class="haken"><input type="checkbox" id="pf-puls">Puls immer verlangen</label>
+      <label class="haken"><input type="checkbox" id="pf-bz">Blutzucker immer verlangen</label>
+      <label class="haken"><input type="checkbox" id="pf-gewicht">Gewicht immer verlangen</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Farbgrenzen</legend>
+      <p class="hinweis">Startvorgabe nach allgemeinen Richtwerten, für Messungen zu Hause. Bitte mit dem Arzt abgleichen. Felder mit "freiwillig" dürfen leer bleiben, dann wird in dieser Richtung nichts markiert.</p>
+      <div id="grenzen"></div>
+      <button type="button" class="zweit" id="grenzen-standard">Auf Startvorgabe zurücksetzen</button>
+    </fieldset>
+
+    <div id="set-fehler" class="fehlerbox" role="alert" hidden></div>
+    <button type="button" class="speichern" id="set-speichern">Einstellungen speichern</button>
+  </section>
+</main>
+
+<nav aria-label="Hauptmenü">
+  <button type="button" id="nav-eintragen" aria-current="page">Eintragen</button>
+  <button type="button" id="nav-verlauf">Verlauf</button>
+  <button type="button" id="nav-bericht">Bericht</button>
+  <button type="button" id="nav-einstellungen">Einstellungen</button>
+</nav>
+
+<script src="jspdf.umd.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var SCHLUESSEL = "messwerte.eintraege.v1";
+  var EINST_KEY = "messwerte.einstellungen.v1";
+
+  var BEREICHE = {
+    sys:     { min: 60,  max: 260, name: "Oben" },
+    dia:     { min: 30,  max: 160, name: "Unten" },
+    puls:    { min: 30,  max: 220, name: "Puls" },
+    bz:      { min: 20,  max: 600, name: "Blutzucker" },
+    gewicht: { min: 20,  max: 300, name: "Gewicht" }
+  };
+
+  var STANDARD = {
+    bdLeichtSys: 135, bdLeichtDia: 85, bdErhSys: 160, bdErhDia: 100, bdUnterSys: null,
+    pulsUeber: 100, pulsUnter: null,
+    bzNuLeicht: 100, bzNuErh: 126,
+    bzNachLeicht: 140, bzNachErh: 200,
+    bzSonstErh: 200,
+    bzUnter: null
+  };
+  var STANDARD_PFLICHT = { bd: false, puls: false, bz: false, gewicht: false };
+  var STUFE_TEXT = ["im Bereich", "leicht erhöht", "erhöht"];
+
+  var GRUPPEN = [
+    { titel: "Blutdruck", felder: [
+      { key: "bdLeichtSys", label: "Leicht erhöht ab, oben", einheit: "mmHg" },
+      { key: "bdLeichtDia", label: "Leicht erhöht ab, unten", einheit: "mmHg" },
+      { key: "bdErhSys",    label: "Erhöht ab, oben", einheit: "mmHg" },
+      { key: "bdErhDia",    label: "Erhöht ab, unten", einheit: "mmHg" },
+      { key: "bdUnterSys",  label: "Niedrig, wenn oben unter (freiwillig)", einheit: "mmHg", optional: true }
+    ]},
+    { titel: "Puls", felder: [
+      { key: "pulsUeber", label: "Markieren, wenn über", einheit: "pro Min." },
+      { key: "pulsUnter", label: "Niedrig, wenn unter (freiwillig)", einheit: "pro Min.", optional: true }
+    ]},
+    { titel: "Blutzucker nüchtern", felder: [
+      { key: "bzNuLeicht", label: "Leicht erhöht ab", einheit: "mg/dl" },
+      { key: "bzNuErh",    label: "Erhöht ab", einheit: "mg/dl" }
+    ]},
+    { titel: "Blutzucker nach dem Essen", felder: [
+      { key: "bzNachLeicht", label: "Leicht erhöht ab", einheit: "mg/dl" },
+      { key: "bzNachErh",    label: "Erhöht ab", einheit: "mg/dl" }
+    ]},
+    { titel: "Blutzucker, andere oder ohne Zeitpunkt", felder: [
+      { key: "bzSonstErh", label: "Erhöht ab", einheit: "mg/dl" }
+    ]},
+    { titel: "Blutzucker, alle Zeitpunkte", felder: [
+      { key: "bzUnter", label: "Niedrig, wenn unter (freiwillig)", einheit: "mg/dl", optional: true }
+    ]}
+  ];
+
+  var PAARE = [
+    ["bdLeichtSys", "bdErhSys", "Blutdruck oben: \"leicht erhöht ab\" muss kleiner sein als \"erhöht ab\"."],
+    ["bdLeichtDia", "bdErhDia", "Blutdruck unten: \"leicht erhöht ab\" muss kleiner sein als \"erhöht ab\"."],
+    ["bdUnterSys", "bdLeichtSys", "Blutdruck oben: \"niedrig\" muss unter \"leicht erhöht ab\" liegen."],
+    ["pulsUnter", "pulsUeber", "Puls: \"niedrig\" muss unter dem oberen Wert liegen."],
+    ["bzNuLeicht", "bzNuErh", "Blutzucker nüchtern: \"leicht erhöht ab\" muss kleiner sein als \"erhöht ab\"."],
+    ["bzNachLeicht", "bzNachErh", "Blutzucker nach dem Essen: \"leicht erhöht ab\" muss kleiner sein als \"erhöht ab\"."],
+    ["bzUnter", "bzNuLeicht", "Blutzucker: \"niedrig\" muss unter \"nüchtern leicht erhöht ab\" liegen."]
+  ];
+
+  var editId = null;
+  var loeschenId = null;
+  var monat = heuteMonat();
+  var erfolgTimer = null;
+  var einstCache = null;
+
+  function $(id) { return document.getElementById(id); }
+
+  function el(tag, klasse, text) {
+    var e = document.createElement(tag);
+    if (klasse) e.className = klasse;
+    if (text !== undefined && text !== null) e.textContent = text;
+    return e;
+  }
+
+  function heuteMonat() {
+    var d = new Date();
+    return { jahr: d.getFullYear(), monat: d.getMonth() };
+  }
+
+  /* ---------- Speicher ---------- */
+
+  function laden() {
+    try {
+      var roh = localStorage.getItem(SCHLUESSEL);
+      return roh ? JSON.parse(roh) : [];
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function sichern(liste) {
+    try {
+      localStorage.setItem(SCHLUESSEL, JSON.stringify(liste));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function kopie(o) {
+    var k = {};
+    Object.keys(o).forEach(function (s) { k[s] = o[s]; });
+    return k;
+  }
+
+  function einstNormalisieren(j) {
+    var e = { name: "", geb: "", pflicht: kopie(STANDARD_PFLICHT), grenzen: kopie(STANDARD) };
+    if (!j || typeof j !== "object") return e;
+    if (typeof j.name === "string") e.name = j.name.slice(0, 60);
+    if (typeof j.geb === "string") e.geb = j.geb.slice(0, 10);
+    Object.keys(STANDARD_PFLICHT).forEach(function (k) {
+      if (j.pflicht && typeof j.pflicht[k] === "boolean") e.pflicht[k] = j.pflicht[k];
+    });
+    Object.keys(STANDARD).forEach(function (k) {
+      if (j.grenzen && Object.prototype.hasOwnProperty.call(j.grenzen, k)) {
+        var v = j.grenzen[k];
+        var ok = v === null ? STANDARD[k] === null : (typeof v === "number" && isFinite(v) && v >= 1 && v <= 600);
+        if (ok) e.grenzen[k] = v;
+      }
+    });
+    return e;
+  }
+
+  function einstLaden() {
+    try {
+      var roh = localStorage.getItem(EINST_KEY);
+      return einstNormalisieren(roh ? JSON.parse(roh) : null);
+    } catch (err) {
+      return einstNormalisieren(null);
+    }
+  }
+
+  function einst() {
+    if (!einstCache) einstCache = einstLaden();
+    return einstCache;
+  }
+
+  function einstSichern(e) {
+    try {
+      localStorage.setItem(EINST_KEY, JSON.stringify(e));
+      einstCache = null;
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  /* ---------- Hilfen ---------- */
+
+  function zahl(text, ganz) {
+    var t = String(text || "").trim().replace(",", ".");
+    if (t === "") return null;
+    if (ganz ? !/^\d+$/.test(t) : !/^\d+(\.\d)?$/.test(t)) return NaN;
+    return Number(t);
+  }
+
+  function dez(n) { return String(n).replace(".", ","); }
+
+  function datumText(d) {
+    var tag = d.toLocaleDateString("de-DE", { weekday: "short" });
+    var datum = d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+    var zeit = d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+    return tag + ", " + datum + ", " + zeit + " Uhr";
+  }
+
+  /* ---------- Bewertung ---------- */
+
+  function bewerteBlutdruck(s, d) {
+    var g = einst().grenzen;
+    if (s >= g.bdErhSys || d >= g.bdErhDia) return { stufe: 2, text: STUFE_TEXT[2] };
+    if (s >= g.bdLeichtSys || d >= g.bdLeichtDia) return { stufe: 1, text: STUFE_TEXT[1] };
+    if (g.bdUnterSys !== null && s < g.bdUnterSys) return { stufe: 1, text: "niedrig" };
+    return { stufe: 0, text: STUFE_TEXT[0] };
+  }
+
+  function bewertePuls(p) {
+    var g = einst().grenzen;
+    if (p > g.pulsUeber) return { stufe: 1, text: "über " + g.pulsUeber };
+    if (g.pulsUnter !== null && p < g.pulsUnter) return { stufe: 1, text: "niedrig" };
+    return { stufe: 0, text: STUFE_TEXT[0] };
+  }
+
+  function bewerteZucker(v, zeitpunkt) {
+    var g = einst().grenzen;
+    var leicht = null, erh = g.bzSonstErh;
+    if (zeitpunkt === "nüchtern") { leicht = g.bzNuLeicht; erh = g.bzNuErh; }
+    else if (zeitpunkt === "nach dem Essen") { leicht = g.bzNachLeicht; erh = g.bzNachErh; }
+    if (v >= erh) return { stufe: 2, text: STUFE_TEXT[2] };
+    if (leicht !== null && v >= leicht) return { stufe: 1, text: STUFE_TEXT[1] };
+    if (g.bzUnter !== null && v < g.bzUnter) return { stufe: 1, text: "niedrig" };
+    if (leicht === null) return null;
+    return { stufe: 0, text: STUFE_TEXT[0] };
+  }
+
+  /* ---------- Formular ---------- */
+
+  var FELDER = ["sys", "dia", "puls", "sys2", "dia2", "puls2", "bz", "gewicht"];
+
+  function datumAnzeigen() {
+    if (editId) return;
+    $("datum").textContent = datumText(new Date());
+  }
+
+  function standAnzeigen() {
+    var liste = laden();
+    if (liste === null) {
+      $("stand").textContent = "Speicher im Browser nicht verfügbar. Einträge können nicht gesichert werden.";
+      return;
+    }
+    if (liste.length === 0) {
+      $("stand").textContent = "Noch keine Einträge gespeichert.";
+      return;
+    }
+    var letzter = liste.slice().sort(function (a, b) { return a.zeit < b.zeit ? -1 : 1; })[liste.length - 1];
+    $("stand").textContent = liste.length + (liste.length === 1 ? " Eintrag" : " Einträge") +
+      " gespeichert, zuletzt " + datumText(new Date(letzter.zeit));
+  }
+
+  function felderMarkieren(ids) {
+    FELDER.forEach(function (id) { $(id).removeAttribute("aria-invalid"); });
+    ids.forEach(function (id) { $(id).setAttribute("aria-invalid", "true"); });
+  }
+
+  function fehlerBox(box, kopf, meldungen) {
+    box.innerHTML = "";
+    box.appendChild(el("div", null, kopf));
+    var ul = document.createElement("ul");
+    meldungen.forEach(function (m) { ul.appendChild(el("li", null, m)); });
+    box.appendChild(ul);
+    box.hidden = false;
+  }
+
+  function fehlerZeigen(meldungen, ids) {
+    fehlerBox($("fehler"), "Der Eintrag wurde nicht gespeichert:", meldungen);
+    felderMarkieren(ids);
+    if (ids.length) $(ids[0]).focus();
+    else $("fehler").scrollIntoView({ block: "center" });
+  }
+
+  function fehlerLoeschen() {
+    $("fehler").hidden = true;
+    felderMarkieren([]);
+  }
+
+  function lesen(id, ganz) {
+    var basis = id.replace(/2$/, "");
+    return { id: id, wert: zahl($(id).value, ganz), bereich: BEREICHE[basis] };
+  }
+
+  function pruefen() {
+    var meldungen = [];
+    var ids = [];
+    function fehler(text, id) { meldungen.push(text); if (id) ids.push(id); }
+
+    var werte = {};
+    ["sys", "dia", "puls", "sys2", "dia2", "puls2", "bz"].forEach(function (id) { werte[id] = lesen(id, true); });
+    werte.gewicht = lesen("gewicht", false);
+
+    Object.keys(werte).forEach(function (id) {
+      var e = werte[id];
+      if (e.wert === null) return;
+      var label = e.bereich.name + (/2$/.test(id) ? " (zweite Messung)" : "");
+      if (isNaN(e.wert)) {
+        fehler(label + ": nur Zahlen eintragen.", id);
+      } else if (e.wert < e.bereich.min || e.wert > e.bereich.max) {
+        fehler(label + ": " + e.wert + " liegt außerhalb von " + e.bereich.min + " bis " + e.bereich.max + ". Tippfehler?", id);
+      }
+    });
+
+    function paar(a, b, text) {
+      var wa = werte[a].wert, wb = werte[b].wert;
+      if ((wa === null) !== (wb === null)) {
+        fehler(text, wa === null ? a : b);
+      } else if (wa !== null && wb !== null && !isNaN(wa) && !isNaN(wb) && wa <= wb) {
+        fehler("Der obere Wert muss größer sein als der untere.", a);
+      }
+    }
+    paar("sys", "dia", "Blutdruck: oberen und unteren Wert zusammen eintragen.");
+    paar("sys2", "dia2", "Zweite Messung: oberen und unteren Wert zusammen eintragen.");
+
+    var pf = einst().pflicht;
+    if (pf.bd && werte.sys.wert === null && werte.dia.wert === null) fehler("Blutdruck ist als Pflichtangabe eingestellt.", "sys");
+    if (pf.puls && werte.puls.wert === null) fehler("Puls ist als Pflichtangabe eingestellt.", "puls");
+    if (pf.bz && werte.bz.wert === null) fehler("Blutzucker ist als Pflichtangabe eingestellt.", "bz");
+    if (pf.gewicht && werte.gewicht.wert === null) fehler("Gewicht ist als Pflichtangabe eingestellt.", "gewicht");
+
+    var hatWert = ["sys", "dia", "puls", "bz", "gewicht"].some(function (id) {
+      return werte[id].wert !== null && !isNaN(werte[id].wert);
+    });
+    if (!hatWert && meldungen.length === 0) {
+      fehler("Trage mindestens einen Messwert ein.", "sys");
+    }
+    return { meldungen: meldungen, ids: ids, werte: werte };
+  }
+
+  function gewaehlterZeitpunkt() {
+    var an = document.querySelector("#chips .chip[aria-pressed='true']");
+    return an ? an.getAttribute("data-wert") : null;
+  }
+
+  function zeitpunktSetzen(wert) {
+    document.querySelectorAll("#chips .chip").forEach(function (c) {
+      c.setAttribute("aria-pressed", c.getAttribute("data-wert") === wert ? "true" : "false");
+    });
+  }
+
+  function zweiteZeigen(offen) {
+    $("zweite").hidden = !offen;
+    $("zweite-knopf").setAttribute("aria-expanded", offen ? "true" : "false");
+    $("zweite-knopf").textContent = offen ? "− Zweite Messung ausblenden" : "+ Zweite Messung (freiwillig)";
+  }
+
+  function formularLeeren() {
+    FELDER.concat(["notiz"]).forEach(function (id) { $(id).value = ""; });
+    zeitpunktSetzen(null);
+    zweiteZeigen(false);
+    fehlerLoeschen();
+  }
+
+  function bearbeitungBeenden() {
+    editId = null;
+    $("eintrag-titel").textContent = "Neuer Eintrag";
+    $("speichern-knopf").textContent = "Speichern";
+    $("abbrechen-knopf").hidden = true;
+    formularLeeren();
+    datumAnzeigen();
+  }
+
+  function bearbeitungStarten(id) {
+    var liste = laden() || [];
+    var e = liste.filter(function (x) { return x.id === id; })[0];
+    if (!e) return;
+    formularLeeren();
+    editId = id;
+    FELDER.forEach(function (f) {
+      var v = e[f];
+      $(f).value = (v === null || v === undefined) ? "" : (f === "gewicht" ? dez(v) : String(v));
+    });
+    $("notiz").value = e.notiz || "";
+    zeitpunktSetzen(e.zeitpunkt);
+    zweiteZeigen(e.sys2 != null || e.dia2 != null || e.puls2 != null);
+    $("eintrag-titel").textContent = "Eintrag ändern";
+    $("datum").textContent = "Eingetragen am " + datumText(new Date(e.zeit));
+    $("speichern-knopf").textContent = "Änderungen speichern";
+    $("abbrechen-knopf").hidden = false;
+    ansichtZeigen("eintragen", true);
+    window.scrollTo(0, 0);
+  }
+
+  function erfolgZeigen(text) {
+    var box = $("erfolg");
+    box.textContent = text;
+    box.hidden = false;
+    clearTimeout(erfolgTimer);
+    erfolgTimer = setTimeout(function () { box.hidden = true; }, 6000);
+  }
+
+  function speichern(ev) {
+    ev.preventDefault();
+    fehlerLoeschen();
+    $("erfolg").hidden = true;
+
+    var ergebnis = pruefen();
+    if (ergebnis.meldungen.length) {
+      fehlerZeigen(ergebnis.meldungen, ergebnis.ids);
+      return;
+    }
+
+    var w = ergebnis.werte;
+    var jetzt = new Date();
+    var daten = {
+      sys: w.sys.wert, dia: w.dia.wert, puls: w.puls.wert,
+      sys2: w.sys2.wert, dia2: w.dia2.wert, puls2: w.puls2.wert,
+      bz: w.bz.wert,
+      gewicht: w.gewicht.wert,
+      zeitpunkt: gewaehlterZeitpunkt(),
+      notiz: $("notiz").value.trim() || null
+    };
+
+    var liste = laden();
+    if (liste === null) {
+      fehlerZeigen(["Der Speicher im Browser ist nicht erreichbar. Der Eintrag konnte nicht gesichert werden."], []);
+      return;
+    }
+
+    var ziel;
+    var meldung;
+    if (editId) {
+      var i = -1;
+      liste.forEach(function (x, n) { if (x.id === editId) i = n; });
+      if (i < 0) {
+        fehlerZeigen(["Dieser Eintrag existiert nicht mehr."], []);
+        return;
+      }
+      Object.keys(daten).forEach(function (k) { liste[i][k] = daten[k]; });
+      liste[i].geaendert = jetzt.toISOString();
+      ziel = new Date(liste[i].zeit);
+      meldung = "Änderung gespeichert";
+    } else {
+      daten.id = jetzt.getTime().toString(36) + Math.random().toString(36).slice(2, 6);
+      daten.zeit = jetzt.toISOString();
+      liste.push(daten);
+      ziel = jetzt;
+      meldung = "Gespeichert, " + datumText(jetzt);
+    }
+
+    if (!sichern(liste)) {
+      fehlerZeigen(["Speichern fehlgeschlagen. Der Speicher im Browser ist voll oder gesperrt."], []);
+      return;
+    }
+
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().catch(function () {});
+    }
+
+    var warBearbeitung = !!editId;
+    bearbeitungBeenden();
+    standAnzeigen();
+    if (warBearbeitung) {
+      monat = { jahr: ziel.getFullYear(), monat: ziel.getMonth() };
+      ansichtZeigen("verlauf", true);
+    }
+    erfolgZeigen(meldung);
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- Verlauf ---------- */
+
+  function zeileBauen(titel, wertText, bewertung) {
+    var z = el("div", "zeile");
+    var links = el("div");
+    links.appendChild(el("div", "titel", titel));
+    links.appendChild(el("div", "wert", wertText));
+    z.appendChild(links);
+    if (bewertung) z.appendChild(el("span", "badge b" + bewertung.stufe, bewertung.text));
+    return z;
+  }
+
+  function knopfBauen(text, aktion, id, klasse) {
+    var b = el("button", klasse || null, text);
+    b.type = "button";
+    b.setAttribute("data-aktion", aktion);
+    if (id) b.setAttribute("data-id", id);
+    return b;
+  }
+
+  function karteBauen(e) {
+    var k = el("article", "karte");
+    var d = new Date(e.zeit);
+    var kopf = datumText(d) + (e.zeitpunkt ? ", " + e.zeitpunkt : "");
+    k.appendChild(el("div", "kopf", kopf));
+
+    if (e.sys != null && e.dia != null) {
+      k.appendChild(zeileBauen("Blutdruck", e.sys + " / " + e.dia, bewerteBlutdruck(e.sys, e.dia)));
+    }
+    if (e.puls != null) {
+      k.appendChild(zeileBauen("Puls", String(e.puls), bewertePuls(e.puls)));
+    }
+    if (e.sys2 != null && e.dia2 != null) {
+      k.appendChild(zeileBauen("Blutdruck, zweite Messung", e.sys2 + " / " + e.dia2, bewerteBlutdruck(e.sys2, e.dia2)));
+    }
+    if (e.puls2 != null) {
+      k.appendChild(zeileBauen("Puls, zweite Messung", String(e.puls2), bewertePuls(e.puls2)));
+    }
+    if (e.bz != null) {
+      k.appendChild(zeileBauen("Blutzucker", e.bz + " mg/dl", bewerteZucker(e.bz, e.zeitpunkt)));
+    }
+    if (e.gewicht != null) {
+      k.appendChild(zeileBauen("Gewicht", dez(e.gewicht) + " kg", null));
+    }
+    if (e.notiz) k.appendChild(el("div", "notiz", e.notiz));
+    if (e.geaendert) k.appendChild(el("div", "geaendert", "Geändert am " + datumText(new Date(e.geaendert))));
+
+    var reihe = el("div", "knoepfe");
+    if (loeschenId === e.id) {
+      k.appendChild(el("div", "rueckfrage", "Diesen Eintrag endgültig löschen?"));
+      reihe.appendChild(knopfBauen("Ja, löschen", "loeschen-ja", e.id, "gefahr"));
+      reihe.appendChild(knopfBauen("Abbrechen", "loeschen-nein", null));
+    } else {
+      reihe.appendChild(knopfBauen("Ändern", "aendern", e.id));
+      reihe.appendChild(knopfBauen("Löschen", "loeschen", e.id));
+    }
+    k.appendChild(reihe);
+    return k;
+  }
+
+  function verlaufZeichnen() {
+    var name = new Date(monat.jahr, monat.monat, 1).toLocaleDateString("de-DE", { month: "long", year: "numeric" });
+    $("monat-name").textContent = name;
+    var h = heuteMonat();
+    var istJetzt = monat.jahr === h.jahr && monat.monat === h.monat;
+    $("monat-vor").style.visibility = istJetzt ? "hidden" : "visible";
+
+    var box = $("liste");
+    box.innerHTML = "";
+    var liste = laden();
+    if (liste === null) {
+      $("monat-anzahl").textContent = "";
+      box.appendChild(el("div", "leer", "Speicher im Browser nicht verfügbar."));
+      return;
+    }
+    var treffer = liste.filter(function (e) {
+      var d = new Date(e.zeit);
+      return d.getFullYear() === monat.jahr && d.getMonth() === monat.monat;
+    }).sort(function (a, b) { return a.zeit < b.zeit ? 1 : -1; });
+
+    $("monat-anzahl").textContent = treffer.length === 0 ? "" :
+      treffer.length + (treffer.length === 1 ? " Eintrag" : " Einträge");
+    if (treffer.length === 0) {
+      box.appendChild(el("div", "leer", "Keine Einträge in diesem Monat."));
+      return;
+    }
+    treffer.forEach(function (e) { box.appendChild(karteBauen(e)); });
+  }
+
+  function verlaufKlick(ev) {
+    var b = ev.target.closest("button[data-aktion]");
+    if (!b) return;
+    var aktion = b.getAttribute("data-aktion");
+    var id = b.getAttribute("data-id");
+    if (aktion === "aendern") {
+      loeschenId = null;
+      bearbeitungStarten(id);
+    } else if (aktion === "loeschen") {
+      loeschenId = id;
+      verlaufZeichnen();
+    } else if (aktion === "loeschen-nein") {
+      loeschenId = null;
+      verlaufZeichnen();
+    } else if (aktion === "loeschen-ja") {
+      var liste = laden();
+      if (liste === null) return;
+      var neu = liste.filter(function (x) { return x.id !== id; });
+      loeschenId = null;
+      erfolgZeigen(sichern(neu) ? "Eintrag gelöscht" : "Löschen fehlgeschlagen.");
+      standAnzeigen();
+      verlaufZeichnen();
+    }
+  }
+
+  function monatWechseln(schritt) {
+    var d = new Date(monat.jahr, monat.monat + schritt, 1);
+    monat = { jahr: d.getFullYear(), monat: d.getMonth() };
+    loeschenId = null;
+    verlaufZeichnen();
+  }
+
+  /* ---------- Einstellungen ---------- */
+
+  function grenzenAufbauen() {
+    var box = $("grenzen");
+    if (box.childNodes.length) return;
+    GRUPPEN.forEach(function (grp) {
+      box.appendChild(el("div", "untertitel", grp.titel));
+      grp.felder.forEach(function (f) {
+        var zeile = el("div", "gz");
+        var l = el("label", null, f.label);
+        l.setAttribute("for", "g-" + f.key);
+        var i = document.createElement("input");
+        i.type = "text";
+        i.id = "g-" + f.key;
+        i.setAttribute("inputmode", "numeric");
+        i.maxLength = 3;
+        i.setAttribute("autocomplete", "off");
+        zeile.appendChild(l);
+        zeile.appendChild(i);
+        zeile.appendChild(el("span", "einheit", f.einheit));
+        box.appendChild(zeile);
+      });
+    });
+  }
+
+  function grenzenFuellen(g) {
+    GRUPPEN.forEach(function (grp) {
+      grp.felder.forEach(function (f) {
+        var v = g[f.key];
+        var i = $("g-" + f.key);
+        i.value = (v === null || v === undefined) ? "" : String(v);
+        i.removeAttribute("aria-invalid");
+      });
+    });
+  }
+
+  function einstellungenFuellen() {
+    grenzenAufbauen();
+    var e = einst();
+    $("set-name").value = e.name;
+    $("set-geb").value = e.geb;
+    $("pf-bd").checked = e.pflicht.bd;
+    $("pf-puls").checked = e.pflicht.puls;
+    $("pf-bz").checked = e.pflicht.bz;
+    $("pf-gewicht").checked = e.pflicht.gewicht;
+    grenzenFuellen(e.grenzen);
+    $("set-fehler").hidden = true;
+    $("set-name").removeAttribute("aria-invalid");
+    $("set-geb").removeAttribute("aria-invalid");
+  }
+
+  function geburtsdatumPruefen(text) {
+    var m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(text);
+    if (!m) return false;
+    var t = Number(m[1]), mo = Number(m[2]), j = Number(m[3]);
+    var d = new Date(j, mo - 1, t);
+    if (d.getFullYear() !== j || d.getMonth() !== mo - 1 || d.getDate() !== t) return false;
+    if (j < 1900 || d.getTime() > Date.now()) return false;
+    return true;
+  }
+
+  function einstellungenSpeichern() {
+    var meldungen = [];
+    var ids = [];
+    function fehler(text, id) { meldungen.push(text); if (id) ids.push(id); }
+    document.querySelectorAll("#ansicht-einstellungen input").forEach(function (i) { i.removeAttribute("aria-invalid"); });
+
+    var name = $("set-name").value.trim();
+    var geb = $("set-geb").value.trim();
+    if (geb !== "" && !geburtsdatumPruefen(geb)) {
+      fehler("Geburtsdatum: bitte als TT.MM.JJJJ eintragen, zum Beispiel 01.02.1950.", "set-geb");
+    }
+
+    var g = {};
+    GRUPPEN.forEach(function (grp) {
+      grp.felder.forEach(function (f) {
+        var id = "g-" + f.key;
+        var n = zahl($(id).value, true);
+        var voll = grp.titel + ", " + f.label.replace(" (freiwillig)", "");
+        if (n === null) {
+          if (f.optional) g[f.key] = null;
+          else fehler(voll + ": Wert fehlt.", id);
+        } else if (isNaN(n) || n < 1 || n > 600) {
+          fehler(voll + ": eine ganze Zahl von 1 bis 600 eintragen.", id);
+        } else {
+          g[f.key] = n;
+        }
+      });
+    });
+    PAARE.forEach(function (p) {
+      var a = g[p[0]], b = g[p[1]];
+      if (typeof a === "number" && typeof b === "number" && a >= b) fehler(p[2], "g-" + p[0]);
+    });
+
+    if (meldungen.length) {
+      fehlerBox($("set-fehler"), "Die Einstellungen wurden nicht gespeichert:", meldungen);
+      ids.forEach(function (id) { $(id).setAttribute("aria-invalid", "true"); });
+      $(ids[0]).focus();
+      return;
+    }
+
+    $("set-fehler").hidden = true;
+    var neu = {
+      name: name,
+      geb: geb,
+      pflicht: {
+        bd: $("pf-bd").checked, puls: $("pf-puls").checked,
+        bz: $("pf-bz").checked, gewicht: $("pf-gewicht").checked
+      },
+      grenzen: g
+    };
+    if (!einstSichern(neu)) {
+      fehlerBox($("set-fehler"), "Die Einstellungen wurden nicht gespeichert:",
+        ["Der Speicher im Browser ist voll oder gesperrt."]);
+      return;
+    }
+    erfolgZeigen("Einstellungen gespeichert");
+    window.scrollTo(0, 0);
+  }
+
+  function grenzenStandard() {
+    grenzenFuellen(STANDARD);
+    $("set-fehler").hidden = true;
+    erfolgZeigen("Startvorgabe eingesetzt. Zum Übernehmen speichern.");
+  }
+
+  /* ---------- Bericht und Export ---------- */
+
+  var BERICHTE_KEY = "messwerte.berichte.v1";
+  var MONATE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  var MONATE_KURZ = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+  var WOCHENTAGE = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+  var ZEITPUNKTE = ["morgens", "mittags", "abends", "nüchtern", "vor dem Essen", "nach dem Essen"];
+  var berichtMonat = heuteMonat();
+  var restoreDaten = null;
+
+  function monatsName(j, m) { return MONATE[m] + " " + j; }
+  function zweistellig(n) { return (n < 10 ? "0" : "") + n; }
+  function monatsSchluessel(j, m) { return j + "-" + zweistellig(m + 1); }
+  function kurzDatum(d) { return zweistellig(d.getDate()) + "." + zweistellig(d.getMonth() + 1) + "."; }
+  function langDatum(d) { return kurzDatum(d) + d.getFullYear(); }
+  function uhrzeit(d) { return zweistellig(d.getHours()) + ":" + zweistellig(d.getMinutes()); }
+
+  function berichteLaden() {
+    try {
+      var r = localStorage.getItem(BERICHTE_KEY);
+      var j = r ? JSON.parse(r) : {};
+      return j && typeof j === "object" ? j : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function berichtMarkieren(schluessel) {
+    var b = berichteLaden();
+    b[schluessel] = true;
+    try { localStorage.setItem(BERICHTE_KEY, JSON.stringify(b)); } catch (e) {}
+  }
+
+  function eintraegeFiltern(passt) {
+    var liste = laden() || [];
+    return liste.filter(function (e) { return passt(new Date(e.zeit)); })
+      .sort(function (a, b) { return a.zeit < b.zeit ? -1 : 1; });
+  }
+
+  function eintraegeImMonat(j, m) {
+    return eintraegeFiltern(function (d) { return d.getFullYear() === j && d.getMonth() === m; });
+  }
+
+  function eintraegeImJahr(j) {
+    return eintraegeFiltern(function (d) { return d.getFullYear() === j; });
+  }
+
+  /* --- Auswertung --- */
+
+  function statistik(werte) {
+    if (!werte.length) return null;
+    var s = 0, mn = werte[0], mx = werte[0];
+    werte.forEach(function (v) { s += v; if (v < mn) mn = v; if (v > mx) mx = v; });
+    return { n: werte.length, mittel: s / werte.length, min: mn, max: mx };
+  }
+
+  function sammeln(eintraege) {
+    var a = { sys: [], dia: [], puls: [], bz: [], bzNu: [], bzNach: [], gewicht: [] };
+    eintraege.forEach(function (e) {
+      if (e.sys != null && e.dia != null) { a.sys.push(e.sys); a.dia.push(e.dia); }
+      if (e.sys2 != null && e.dia2 != null) { a.sys.push(e.sys2); a.dia.push(e.dia2); }
+      if (e.puls != null) a.puls.push(e.puls);
+      if (e.puls2 != null) a.puls.push(e.puls2);
+      if (e.bz != null) {
+        a.bz.push(e.bz);
+        if (e.zeitpunkt === "nüchtern") a.bzNu.push(e.bz);
+        else if (e.zeitpunkt === "nach dem Essen") a.bzNach.push(e.bz);
+      }
+      if (e.gewicht != null) a.gewicht.push(e.gewicht);
+    });
+    return a;
+  }
+
+  function auswertung(eintraege) {
+    var a = sammeln(eintraege);
+    return [
+      { titel: "Blutdruck oben", einheit: "mmHg", st: statistik(a.sys), nk: 0 },
+      { titel: "Blutdruck unten", einheit: "mmHg", st: statistik(a.dia), nk: 0 },
+      { titel: "Puls", einheit: "pro Min.", st: statistik(a.puls), nk: 0 },
+      { titel: "Blutzucker, alle", einheit: "mg/dl", st: statistik(a.bz), nk: 0 },
+      { titel: "Blutzucker nüchtern", einheit: "mg/dl", st: statistik(a.bzNu), nk: 0 },
+      { titel: "Blutzucker nach dem Essen", einheit: "mg/dl", st: statistik(a.bzNach), nk: 0 },
+      { titel: "Gewicht", einheit: "kg", st: statistik(a.gewicht), nk: 1 }
+    ].filter(function (z) { return z.st !== null; });
+  }
+
+  function fz(v, nk) {
+    if (nk) return dez((Math.round(v * 10) / 10).toFixed(1));
+    return String(Math.round(v));
+  }
+
+  function mittelText(werte, nk) {
+    var s = statistik(werte);
+    return s ? fz(s.mittel, nk) : "";
+  }
+
+  /* --- Markierungen für Papier --- */
+
+  function marke(b) {
+    if (!b) return "";
+    if (b.text === "niedrig") return " (-)";
+    return b.stufe === 2 ? " (++)" : (b.stufe === 1 ? " (+)" : "");
+  }
+
+  function eintragZellen(e) {
+    var d = new Date(e.zeit);
+    var datum = [{ t: WOCHENTAGE[d.getDay()] + " " + kurzDatum(d) + " " + uhrzeit(d), s: 0 }];
+    var zp = [{ t: e.zeitpunkt || "", s: 0 }];
+    var bd = [], puls = [], bz = [], gew = [], notiz = [];
+    var b;
+    if (e.sys != null && e.dia != null) { b = bewerteBlutdruck(e.sys, e.dia); bd.push({ t: e.sys + " / " + e.dia + marke(b), s: b.stufe }); }
+    if (e.sys2 != null && e.dia2 != null) { b = bewerteBlutdruck(e.sys2, e.dia2); bd.push({ t: "2.: " + e.sys2 + " / " + e.dia2 + marke(b), s: b.stufe }); }
+    if (e.puls != null) { b = bewertePuls(e.puls); puls.push({ t: e.puls + marke(b), s: b.stufe }); }
+    if (e.puls2 != null) { b = bewertePuls(e.puls2); puls.push({ t: "2.: " + e.puls2 + marke(b), s: b.stufe }); }
+    if (e.bz != null) { b = bewerteZucker(e.bz, e.zeitpunkt); bz.push({ t: e.bz + marke(b), s: b ? b.stufe : 0 }); }
+    if (e.gewicht != null) gew.push({ t: dez(e.gewicht), s: 0 });
+    if (e.notiz) notiz.push({ t: e.notiz, s: 0 });
+    return [datum, zp, bd, puls, bz, gew, notiz];
+  }
+
+  function hinweisText() {
+    var g = einst().grenzen;
+    var t = "Markierung: (+) leicht erhöht, (++) erhöht, (-) niedrig. Grenzen für Messungen zu Hause: " +
+      "Blutdruck leicht erhöht ab " + g.bdLeichtSys + "/" + g.bdLeichtDia + ", erhöht ab " + g.bdErhSys + "/" + g.bdErhDia +
+      "; Puls über " + g.pulsUeber +
+      "; Blutzucker nüchtern leicht erhöht ab " + g.bzNuLeicht + ", erhöht ab " + g.bzNuErh +
+      " mg/dl; nach dem Essen ab " + g.bzNachLeicht + " und " + g.bzNachErh +
+      " mg/dl; sonst erhöht ab " + g.bzSonstErh + " mg/dl";
+    var nied = [];
+    if (g.bdUnterSys !== null) nied.push("Blutdruck oben unter " + g.bdUnterSys);
+    if (g.pulsUnter !== null) nied.push("Puls unter " + g.pulsUnter);
+    if (g.bzUnter !== null) nied.push("Blutzucker unter " + g.bzUnter + " mg/dl");
+    if (nied.length) t += "; niedrig: " + nied.join(", ");
+    t += ". Die Grenzen sind allgemeine Richtwerte und mit dem Arzt abzugleichen. " +
+      "Zweite Messungen sind in der Statistik als eigene Messwerte mitgezählt. " +
+      "Diese Aufstellung ersetzt keine ärztliche Beurteilung.";
+    return t;
+  }
+
+  /* --- PDF --- */
+
+  function pdfKlasse() {
+    return window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : null;
+  }
+
+  function diagramm(doc, x, y, w, h, o) {
+    var ymin = Infinity, ymax = -Infinity;
+    o.serien.forEach(function (s) {
+      s.punkte.forEach(function (p) { if (p.y < ymin) ymin = p.y; if (p.y > ymax) ymax = p.y; });
+    });
+    if (!isFinite(ymin)) return false;
+    (o.linien || []).forEach(function (l) { if (l.y < ymin) ymin = l.y; if (l.y > ymax) ymax = l.y; });
+    var spanne = Math.max(ymax - ymin, 10);
+    var schritt = 5;
+    [5, 10, 20, 25, 50, 100, 200].some(function (s) { schritt = s; return spanne * 1.2 / s <= 6; });
+    ymin = Math.floor((ymin - spanne * 0.08) / schritt) * schritt;
+    ymax = Math.ceil((ymax + spanne * 0.08) / schritt) * schritt;
+    var links = x + 11, rechts = x + w - 3, oben = y + 9, unten = y + h - 7;
+    function px(v) { return links + (v - o.xmin) / ((o.xmax - o.xmin) || 1) * (rechts - links); }
+    function py(v) { return unten - (v - ymin) / (ymax - ymin) * (unten - oben); }
+
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(0);
+    doc.text(o.titel, x, y + 4);
+
+    doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
+    doc.setDrawColor(215); doc.setLineWidth(0.15);
+    for (var v = ymin; v <= ymax + 0.001; v += schritt) {
+      doc.setDrawColor(215);
+      doc.line(links, py(v), rechts, py(v));
+      doc.setTextColor(90);
+      doc.text(String(v), links - 1.5, py(v) + 1, { align: "right" });
+    }
+    o.ticks.forEach(function (t) {
+      doc.setDrawColor(120);
+      doc.line(px(t.pos), unten, px(t.pos), unten + 1.2);
+      doc.setTextColor(90);
+      doc.text(t.label, px(t.pos), unten + 4.2, { align: "center" });
+    });
+    doc.setDrawColor(120); doc.setLineWidth(0.3);
+    doc.line(links, unten, rechts, unten);
+    doc.line(links, oben, links, unten);
+
+    (o.linien || []).forEach(function (l) {
+      doc.setDrawColor(150, 90, 0); doc.setLineWidth(0.25);
+      doc.setLineDashPattern([1.5, 1.2], 0);
+      doc.line(links, py(l.y), rechts, py(l.y));
+      doc.setLineDashPattern([], 0);
+      doc.setFontSize(7); doc.setTextColor(150, 90, 0);
+      doc.text(l.text, rechts, py(l.y) - 0.8, { align: "right" });
+    });
+
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+    var legendeB = 0;
+    o.serien.forEach(function (s) { if (s.punkte.length) legendeB += doc.getTextWidth(s.name) + 9; });
+    var lx = x + w - legendeB + 3;
+    o.serien.forEach(function (s) {
+      if (!s.punkte.length) return;
+      var pts = s.punkte.slice().sort(function (a, b) { return a.x - b.x; });
+      doc.setDrawColor(s.farbe[0], s.farbe[1], s.farbe[2]); doc.setLineWidth(0.35);
+      doc.setFillColor(s.farbe[0], s.farbe[1], s.farbe[2]);
+      for (var i = 1; i < pts.length; i++) doc.line(px(pts[i - 1].x), py(pts[i - 1].y), px(pts[i].x), py(pts[i].y));
+      pts.forEach(function (p) {
+        if (s.form === "quadrat") doc.rect(px(p.x) - 0.75, py(p.y) - 0.75, 1.5, 1.5, "F");
+        else doc.circle(px(p.x), py(p.y), 0.8, "F");
+      });
+      if (s.form === "quadrat") doc.rect(lx - 0.75, y + 2.4, 1.5, 1.5, "F");
+      else doc.circle(lx, y + 3.1, 0.8, "F");
+      doc.setFontSize(8); doc.setTextColor(0);
+      doc.text(s.name, lx + 2.5, y + 3.9);
+      lx += doc.getTextWidth(s.name) + 9;
+    });
+    doc.setTextColor(0); doc.setDrawColor(0); doc.setLineWidth(0.2);
+    return true;
+  }
+
+  function tabelleZeichnen(doc, o) {
+    var untenGrenze = 297 - 20, zeilenH = 4.3, pad = 1.5;
+    var gesamt = 0;
+    o.spalten.forEach(function (c) { gesamt += c.w; });
+
+    function kopf(y) {
+      doc.setFillColor(232, 232, 232);
+      doc.rect(o.x, y, gesamt, 6.5, "F");
+      doc.setFont("helvetica", "bold"); doc.setFontSize(8.5); doc.setTextColor(0);
+      var cx = o.x;
+      o.spalten.forEach(function (c) {
+        if (c.align === "right") doc.text(c.titel, cx + c.w - 1.5, y + 4.5, { align: "right" });
+        else doc.text(c.titel, cx + 1.5, y + 4.5);
+        cx += c.w;
+      });
+      return y + 6.5;
+    }
+
+    var y = kopf(o.y);
+    o.zeilen.forEach(function (z, idx) {
+      doc.setFont("helvetica", "normal"); doc.setFontSize(8.5);
+      var linien = z.map(function (cell, i) {
+        var c = o.spalten[i];
+        var out = [];
+        cell.forEach(function (it) {
+          var teile = c.wrap ? doc.splitTextToSize(it.t, c.w - 3) : [it.t];
+          teile.forEach(function (t) { out.push({ t: t, s: it.s }); });
+        });
+        return out;
+      });
+      var n = 1;
+      linien.forEach(function (l) { if (l.length > n) n = l.length; });
+      var h = n * zeilenH + 2 * pad - 0.6;
+      if (y + h > untenGrenze) { doc.addPage(); y = kopf(16); }
+      if (idx % 2 === 1) { doc.setFillColor(246, 246, 246); doc.rect(o.x, y, gesamt, h, "F"); }
+      var cx = o.x;
+      linien.forEach(function (l, i) {
+        var c = o.spalten[i];
+        l.forEach(function (it, k) {
+          if (it.s === 2) { doc.setFont("helvetica", "bold"); doc.setTextColor(170, 30, 30); }
+          else if (it.s === 1) { doc.setFont("helvetica", "bold"); doc.setTextColor(150, 85, 0); }
+          else { doc.setFont("helvetica", "normal"); doc.setTextColor(0); }
+          var ty = y + pad + 3 + k * zeilenH;
+          if (c.align === "right") doc.text(it.t, cx + c.w - 1.5, ty, { align: "right" });
+          else doc.text(it.t, cx + 1.5, ty);
+        });
+        cx += c.w;
+      });
+      doc.setDrawColor(220); doc.setLineWidth(0.15);
+      doc.line(o.x, y + h, o.x + gesamt, y + h);
+      y += h;
+    });
+    doc.setFont("helvetica", "normal"); doc.setTextColor(0);
+    return y;
+  }
+
+  function seitenFuss(doc) {
+    var e = einst();
+    var person = e.name ? e.name + (e.geb ? ", geboren am " + e.geb : "") : "Messwerte";
+    var n = doc.getNumberOfPages();
+    for (var i = 1; i <= n; i++) {
+      doc.setPage(i);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(110);
+      doc.text(person, 14, 290);
+      doc.text("Seite " + i + " von " + n, 196, 290, { align: "right" });
+    }
+    doc.setTextColor(0);
+  }
+
+  function kopfZeilen(doc, titel, untertitel) {
+    var e = einst();
+    var y = 17;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(0);
+    doc.text(titel, 14, y);
+    y += 7;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(12);
+    doc.text(untertitel, 14, y);
+    y += 6;
+    doc.setFontSize(10);
+    var person = [];
+    if (e.name) person.push("Name: " + e.name);
+    if (e.geb) person.push("geboren am " + e.geb);
+    if (person.length) { doc.text(person.join(", "), 14, y); y += 5; }
+    doc.setTextColor(90);
+    doc.text("Erstellt am " + langDatum(new Date()), 14, y);
+    doc.setTextColor(0);
+    return y + 7;
+  }
+
+  function statTabelle(doc, y, zeilen) {
+    var spalten = [
+      { titel: "Messwert", w: 62 }, { titel: "Anzahl", w: 22, align: "right" },
+      { titel: "Mittelwert", w: 32, align: "right" }, { titel: "Niedrigster", w: 33, align: "right" },
+      { titel: "Höchster", w: 33, align: "right" }
+    ];
+    var z = zeilen.map(function (r) {
+      return [
+        [{ t: r.titel + " (" + r.einheit + ")", s: 0 }], [{ t: String(r.st.n), s: 0 }],
+        [{ t: fz(r.st.mittel, r.nk), s: 0 }], [{ t: fz(r.st.min, r.nk), s: 0 }], [{ t: fz(r.st.max, r.nk), s: 0 }]
+      ];
+    });
+    return tabelleZeichnen(doc, { x: 14, y: y, spalten: spalten, zeilen: z });
+  }
+
+  function platzOderSeite(doc, y, bedarf) {
+    if (y + bedarf > 297 - 20) { doc.addPage(); return 18; }
+    return y;
+  }
+
+  function tageImMonat(j, m) { return new Date(j, m + 1, 0).getDate(); }
+
+  function pdfMonat(J, M) {
+    var JsPDF = pdfKlasse();
+    var daten = eintraegeImMonat(J, M);
+    var doc = new JsPDF({ unit: "mm", format: "a4" });
+    var g = einst().grenzen;
+    var y = kopfZeilen(doc, "Blutdruck und Blutzucker", monatsName(J, M));
+
+    y = statTabelle(doc, y, auswertung(daten)) + 8;
+
+    var tage = tageImMonat(J, M);
+    function zeitX(d) { return d.getDate() + (d.getHours() * 60 + d.getMinutes()) / 1440; }
+    var ticks = [];
+    ticks.push({ pos: 1, label: "1" });
+    for (var t = 5; t <= tage; t += 5) ticks.push({ pos: t, label: String(t) });
+
+    var oben = [], unten = [], nu = [], sonst = [];
+    daten.forEach(function (e) {
+      var x = zeitX(new Date(e.zeit));
+      if (e.sys != null && e.dia != null) { oben.push({ x: x, y: e.sys }); unten.push({ x: x, y: e.dia }); }
+      if (e.sys2 != null && e.dia2 != null) { oben.push({ x: x + 0.04, y: e.sys2 }); unten.push({ x: x + 0.04, y: e.dia2 }); }
+      if (e.bz != null) (e.zeitpunkt === "nüchtern" ? nu : sonst).push({ x: x, y: e.bz });
+    });
+
+    if (oben.length) {
+      y = platzOderSeite(doc, y, 58);
+      diagramm(doc, 14, y, 182, 56, {
+        titel: "Blutdruck im Verlauf (mmHg), Tag im Monat",
+        xmin: 1, xmax: tage + 1, ticks: ticks,
+        serien: [
+          { name: "oben", punkte: oben, farbe: [11, 87, 208], form: "kreis" },
+          { name: "unten", punkte: unten, farbe: [15, 110, 86], form: "quadrat" }
+        ],
+        linien: [{ y: g.bdLeichtSys, text: "leicht erhöht ab " + g.bdLeichtSys }, { y: g.bdLeichtDia, text: "leicht erhöht ab " + g.bdLeichtDia }]
+      });
+      y += 60;
+    }
+    if (nu.length || sonst.length) {
+      y = platzOderSeite(doc, y, 50);
+      diagramm(doc, 14, y, 182, 48, {
+        titel: "Blutzucker im Verlauf (mg/dl), Tag im Monat",
+        xmin: 1, xmax: tage + 1, ticks: ticks,
+        serien: [
+          { name: "nüchtern", punkte: nu, farbe: [110, 50, 150], form: "kreis" },
+          { name: "andere Zeitpunkte", punkte: sonst, farbe: [90, 90, 90], form: "quadrat" }
+        ],
+        linien: nu.length ? [{ y: g.bzNuErh, text: "nüchtern erhöht ab " + g.bzNuErh }] : []
+      });
+      y += 52;
+    }
+
+    y = platzOderSeite(doc, y, 30);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(0);
+    doc.text("Einzelwerte", 14, y + 3);
+    y += 6;
+    var spalten = [
+      { titel: "Datum", w: 29 }, { titel: "Zeitpunkt", w: 29 }, { titel: "Blutdruck", w: 30 },
+      { titel: "Puls", w: 18 }, { titel: "Blutzucker", w: 23 }, { titel: "kg", w: 13 }, { titel: "Notiz", w: 40 }
+    ];
+    spalten[6].wrap = true;
+    spalten[1].wrap = true;
+    y = tabelleZeichnen(doc, { x: 14, y: y, spalten: spalten, zeilen: daten.map(eintragZellen) });
+
+    y += 5;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(80);
+    var zeilen = doc.splitTextToSize(hinweisText(), 182);
+    y = platzOderSeite(doc, y, zeilen.length * 3.6 + 2);
+    doc.text(zeilen, 14, y + 2);
+    doc.setTextColor(0);
+    seitenFuss(doc);
+    return doc;
+  }
+
+  function pdfJahr(J) {
+    var JsPDF = pdfKlasse();
+    var daten = eintraegeImJahr(J);
+    var doc = new JsPDF({ unit: "mm", format: "a4" });
+    var g = einst().grenzen;
+    var y = kopfZeilen(doc, "Blutdruck und Blutzucker", "Jahresübersicht " + J);
+
+    var zeilen = [];
+    var bdOben = [], bdUnten = [], bzAlle = [], bzNu = [];
+    for (var m = 0; m < 12; m++) {
+      var mm = daten.filter(function (e) { return new Date(e.zeit).getMonth() === m; });
+      if (!mm.length) continue;
+      var a = sammeln(mm);
+      var so = statistik(a.sys), su = statistik(a.dia), sb = statistik(a.bz), sn = statistik(a.bzNu);
+      if (so) { bdOben.push({ x: m, y: Math.round(so.mittel) }); bdUnten.push({ x: m, y: Math.round(su.mittel) }); }
+      if (sb) bzAlle.push({ x: m, y: Math.round(sb.mittel) });
+      if (sn) bzNu.push({ x: m, y: Math.round(sn.mittel) });
+      zeilen.push([
+        [{ t: MONATE[m], s: 0 }],
+        [{ t: String(mm.length), s: 0 }],
+        [{ t: so ? fz(so.mittel, 0) + " / " + fz(su.mittel, 0) : "", s: 0 }],
+        [{ t: mittelText(a.puls, 0), s: 0 }],
+        [{ t: mittelText(a.bz, 0), s: 0 }],
+        [{ t: mittelText(a.bzNu, 0), s: 0 }],
+        [{ t: mittelText(a.gewicht, 1), s: 0 }]
+      ]);
+    }
+    var ges = sammeln(daten);
+    zeilen.push([
+      [{ t: "Ganzes Jahr", s: 0 }], [{ t: String(daten.length), s: 0 }],
+      [{ t: ges.sys.length ? mittelText(ges.sys, 0) + " / " + mittelText(ges.dia, 0) : "", s: 0 }],
+      [{ t: mittelText(ges.puls, 0), s: 0 }], [{ t: mittelText(ges.bz, 0), s: 0 }],
+      [{ t: mittelText(ges.bzNu, 0), s: 0 }], [{ t: mittelText(ges.gewicht, 1), s: 0 }]
+    ]);
+
+    doc.setFont("helvetica", "bold"); doc.setFontSize(11);
+    doc.text("Monatsmittelwerte", 14, y + 3);
+    y += 6;
+    y = tabelleZeichnen(doc, {
+      x: 14, y: y,
+      spalten: [
+        { titel: "Monat", w: 32 }, { titel: "Einträge", w: 20, align: "right" }, { titel: "Blutdruck", w: 34, align: "right" },
+        { titel: "Puls", w: 20, align: "right" }, { titel: "Blutzucker", w: 26, align: "right" },
+        { titel: "nüchtern", w: 26, align: "right" }, { titel: "Gewicht kg", w: 24, align: "right" }
+      ],
+      zeilen: zeilen
+    }) + 8;
+
+    var ticks = MONATE_KURZ.map(function (n, i) { return { pos: i, label: n }; });
+    if (bdOben.length) {
+      y = platzOderSeite(doc, y, 58);
+      diagramm(doc, 14, y, 182, 56, {
+        titel: "Blutdruck, Monatsmittelwerte (mmHg)", xmin: 0, xmax: 11, ticks: ticks,
+        serien: [
+          { name: "oben", punkte: bdOben, farbe: [11, 87, 208], form: "kreis" },
+          { name: "unten", punkte: bdUnten, farbe: [15, 110, 86], form: "quadrat" }
+        ],
+        linien: [{ y: g.bdLeichtSys, text: "leicht erhöht ab " + g.bdLeichtSys }, { y: g.bdLeichtDia, text: "leicht erhöht ab " + g.bdLeichtDia }]
+      });
+      y += 60;
+    }
+    if (bzAlle.length) {
+      y = platzOderSeite(doc, y, 50);
+      diagramm(doc, 14, y, 182, 48, {
+        titel: "Blutzucker, Monatsmittelwerte (mg/dl)", xmin: 0, xmax: 11, ticks: ticks,
+        serien: [
+          { name: "alle Messungen", punkte: bzAlle, farbe: [90, 90, 90], form: "quadrat" },
+          { name: "nüchtern", punkte: bzNu, farbe: [110, 50, 150], form: "kreis" }
+        ],
+        linien: bzNu.length ? [{ y: g.bzNuErh, text: "nüchtern erhöht ab " + g.bzNuErh }] : []
+      });
+      y += 52;
+    }
+
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(80);
+    var text = doc.splitTextToSize("Mittelwerte über alle Messwerte des Monats, zweite Messungen als eigene Messwerte mitgezählt. " +
+      "Allgemeine Richtwerte, mit dem Arzt abzugleichen. Diese Aufstellung ersetzt keine ärztliche Beurteilung.", 182);
+    y = platzOderSeite(doc, y, text.length * 3.6 + 2);
+    doc.text(text, 14, y + 2);
+    doc.setTextColor(0);
+    seitenFuss(doc);
+    return doc;
+  }
+
+  /* --- CSV und Sicherung --- */
+
+  function csvFeld(v) {
+    if (v === null || v === undefined) return "";
+    var s = String(v);
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    if (/[;"\r\n]/.test(s)) s = "\"" + s.replace(/"/g, "\"\"") + "\"";
+    return s;
+  }
+
+  function csvBauen(eintraege) {
+    var kopf = ["Datum", "Uhrzeit", "Zeitpunkt", "Blutdruck oben", "Blutdruck unten", "Puls",
+      "Blutdruck oben (2. Messung)", "Blutdruck unten (2. Messung)", "Puls (2. Messung)",
+      "Blutzucker mg/dl", "Gewicht kg", "Notiz", "Geändert am"];
+    var zeilen = [kopf.join(";")];
+    eintraege.forEach(function (e) {
+      var d = new Date(e.zeit);
+      var f = [langDatum(d), uhrzeit(d), e.zeitpunkt, e.sys, e.dia, e.puls, e.sys2, e.dia2, e.puls2,
+        e.bz, e.gewicht != null ? dez(e.gewicht) : null, e.notiz,
+        e.geaendert ? langDatum(new Date(e.geaendert)) + " " + uhrzeit(new Date(e.geaendert)) : null];
+      zeilen.push(f.map(csvFeld).join(";"));
+    });
+    return "﻿" + zeilen.join("\r\n") + "\r\n";
+  }
+
+  function sicherungBauen() {
+    return JSON.stringify({
+      format: "messwerte-sicherung",
+      version: 1,
+      erstellt: new Date().toISOString(),
+      eintraege: laden() || [],
+      einstellungen: einst()
+    }, null, 1);
+  }
+
+  var FELD_BEREICH = {
+    sys: [60, 260], dia: [30, 160], puls: [30, 220],
+    sys2: [60, 260], dia2: [30, 160], puls2: [30, 220],
+    bz: [20, 600], gewicht: [20, 300]
+  };
+
+  function zeitGueltig(s) {
+    return typeof s === "string" && s.length <= 40 && !isNaN(Date.parse(s));
+  }
+
+  function eintragNormalisieren(r) {
+    if (!r || typeof r !== "object") return null;
+    if (typeof r.id !== "string" || r.id.length < 1 || r.id.length > 40) return null;
+    if (!zeitGueltig(r.zeit)) return null;
+    var e = { id: r.id, zeit: new Date(r.zeit).toISOString() };
+    var gueltig = true;
+    Object.keys(FELD_BEREICH).forEach(function (k) {
+      var v = r[k];
+      if (v === null || v === undefined) { e[k] = null; return; }
+      if (typeof v !== "number" || !isFinite(v) || v < FELD_BEREICH[k][0] || v > FELD_BEREICH[k][1]) { gueltig = false; return; }
+      e[k] = k === "gewicht" ? Math.round(v * 10) / 10 : Math.round(v);
+    });
+    if (!gueltig) return null;
+    if (e.sys === null && e.dia === null && e.puls === null && e.bz === null && e.gewicht === null) return null;
+    e.zeitpunkt = ZEITPUNKTE.indexOf(r.zeitpunkt) >= 0 ? r.zeitpunkt : null;
+    e.notiz = (typeof r.notiz === "string" && r.notiz.trim()) ? r.notiz.trim().slice(0, 300) : null;
+    if (zeitGueltig(r.geaendert)) e.geaendert = new Date(r.geaendert).toISOString();
+    return e;
+  }
+
+  function sicherungLesen(text) {
+    var j;
+    try { j = JSON.parse(text); } catch (err) { return { fehler: "Die Datei ist keine gültige Datensicherung." }; }
+    if (!j || j.format !== "messwerte-sicherung" || !Array.isArray(j.eintraege)) {
+      return { fehler: "Die Datei ist keine Datensicherung dieser App." };
+    }
+    if (j.eintraege.length > 50000) return { fehler: "Die Datei enthält zu viele Einträge." };
+    var gut = [], schlecht = 0;
+    j.eintraege.forEach(function (r) {
+      var e = eintragNormalisieren(r);
+      if (e) gut.push(e); else schlecht++;
+    });
+    return {
+      eintraege: gut,
+      ungueltig: schlecht,
+      hatEinst: !!j.einstellungen && typeof j.einstellungen === "object",
+      einstellungen: einstNormalisieren(j.einstellungen)
+    };
+  }
+
+  /* --- Ausgabe --- */
+
+  function herunterladen(blob, name) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      if (a.parentNode) a.parentNode.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 3000);
+  }
+
+  function ausgeben(blob, name, mime) {
+    var datei = null;
+    try { datei = new File([blob], name, { type: mime }); } catch (e) {}
+    if (datei && navigator.canShare && navigator.canShare({ files: [datei] })) {
+      return navigator.share({ files: [datei], title: name }).then(
+        function () { return "geteilt"; },
+        function (err) {
+          if (err && err.name === "AbortError") return "abgebrochen";
+          herunterladen(blob, name);
+          return "geladen";
+        });
+    }
+    herunterladen(blob, name);
+    return Promise.resolve("geladen");
+  }
+
+  function ausgabeMeldung(ergebnis, name) {
+    if (ergebnis === "geteilt") erfolgZeigen("Bereit: " + name);
+    else if (ergebnis === "geladen") erfolgZeigen("Datei wird gespeichert: " + name);
+  }
+
+  function berichtFehler(text) {
+    var b = $("b-fehler");
+    b.textContent = text;
+    b.hidden = false;
+  }
+
+  /* --- Ansicht Bericht --- */
+
+  function berichtZeichnen() {
+    var J = berichtMonat.jahr, M = berichtMonat.monat;
+    $("b-name").textContent = monatsName(J, M);
+    var h = heuteMonat();
+    $("b-vor").style.visibility = (J === h.jahr && M === h.monat) ? "hidden" : "visible";
+    $("b-jahr").textContent = "Jahresbericht " + J + " als PDF";
+    $("b-fehler").hidden = true;
+
+    var daten = eintraegeImMonat(J, M);
+    $("b-anzahl").textContent = daten.length === 0 ? "" : daten.length + (daten.length === 1 ? " Eintrag" : " Einträge");
+    var box = $("b-tabelle");
+    box.innerHTML = "";
+    if (daten.length === 0) {
+      box.appendChild(el("div", "leer", "Keine Einträge in diesem Monat."));
+      $("b-fussnote").hidden = true;
+      return;
+    }
+    var t = el("table", "stat");
+    var kopf = el("tr");
+    ["Messwert", "Anz.", "Ø", "Min.", "Max."].forEach(function (s) { kopf.appendChild(el("th", null, s)); });
+    t.appendChild(kopf);
+    auswertung(daten).forEach(function (r) {
+      var z = el("tr");
+      z.appendChild(el("td", null, r.titel + " (" + r.einheit + ")"));
+      z.appendChild(el("td", null, String(r.st.n)));
+      z.appendChild(el("td", "fett", fz(r.st.mittel, r.nk)));
+      z.appendChild(el("td", null, fz(r.st.min, r.nk)));
+      z.appendChild(el("td", null, fz(r.st.max, r.nk)));
+      t.appendChild(z);
+    });
+    box.appendChild(t);
+    $("b-fussnote").hidden = false;
+  }
+
+  function berichtWechseln(schritt) {
+    var d = new Date(berichtMonat.jahr, berichtMonat.monat + schritt, 1);
+    berichtMonat = { jahr: d.getFullYear(), monat: d.getMonth() };
+    berichtZeichnen();
+  }
+
+  function pdfAusgeben(erzeuger, name, schluessel) {
+    $("b-fehler").hidden = true;
+    if (!pdfKlasse()) {
+      berichtFehler("Die PDF-Bibliothek ist nicht geladen. Prüfe die Internetverbindung und lade die Seite neu.");
+      return;
+    }
+    var doc;
+    try { doc = erzeuger(); } catch (err) {
+      berichtFehler("Der Bericht konnte nicht erstellt werden.");
+      return;
+    }
+    if (schluessel) { berichtMarkieren(schluessel); monatshinweisAktualisieren(); }
+    ausgeben(doc.output("blob"), name, "application/pdf").then(function (r) { ausgabeMeldung(r, name); });
+  }
+
+  function monatBerichtKlick() {
+    var J = berichtMonat.jahr, M = berichtMonat.monat;
+    if (!eintraegeImMonat(J, M).length) { berichtFehler("Für diesen Monat gibt es keine Einträge."); return; }
+    pdfAusgeben(function () { return pdfMonat(J, M); }, "messwerte-" + monatsSchluessel(J, M) + ".pdf", monatsSchluessel(J, M));
+  }
+
+  function jahrBerichtKlick() {
+    var J = berichtMonat.jahr;
+    if (!eintraegeImJahr(J).length) { berichtFehler("Für " + J + " gibt es keine Einträge."); return; }
+    pdfAusgeben(function () { return pdfJahr(J); }, "messwerte-" + J + ".pdf", null);
+  }
+
+  function csvAusgeben(eintraege, name) {
+    $("b-fehler").hidden = true;
+    if (!eintraege.length) { berichtFehler("Es gibt keine Einträge zum Exportieren."); return; }
+    var blob = new Blob([csvBauen(eintraege)], { type: "text/csv;charset=utf-8" });
+    ausgeben(blob, name, "text/csv").then(function (r) { ausgabeMeldung(r, name); });
+  }
+
+  function sicherungSpeichern() {
+    $("b-fehler").hidden = true;
+    var d = new Date();
+    var name = "messwerte-sicherung-" + d.getFullYear() + "-" + zweistellig(d.getMonth() + 1) + "-" + zweistellig(d.getDate()) + ".json";
+    var blob = new Blob([sicherungBauen()], { type: "application/json" });
+    ausgeben(blob, name, "application/json").then(function (r) { ausgabeMeldung(r, name); });
+  }
+
+  function sicherungWaehlen(ev) {
+    var datei = ev.target.files && ev.target.files[0];
+    ev.target.value = "";
+    $("b-fehler").hidden = true;
+    $("b-restore-box").hidden = true;
+    restoreDaten = null;
+    if (!datei) return;
+    if (datei.size > 20 * 1024 * 1024) { berichtFehler("Die Datei ist zu groß für eine Datensicherung."); return; }
+    var leser = new FileReader();
+    leser.onload = function () {
+      var r = sicherungLesen(String(leser.result));
+      if (r.fehler) { berichtFehler(r.fehler); return; }
+      var vorhanden = {};
+      (laden() || []).forEach(function (e) { vorhanden[e.id] = true; });
+      var neue = r.eintraege.filter(function (e) { return !vorhanden[e.id]; });
+      restoreDaten = { neue: neue, einst: r.hatEinst ? r.einstellungen : null };
+      var text = neue.length + (neue.length === 1 ? " neuer Eintrag" : " neue Einträge") +
+        " aus der Sicherung. " + (r.eintraege.length - neue.length) + " sind schon vorhanden.";
+      if (r.ungueltig) text += " " + r.ungueltig + " ungültige Einträge werden übersprungen.";
+      if (r.hatEinst) text += " Die Einstellungen aus der Sicherung ersetzen die jetzigen.";
+      $("b-restore-text").textContent = text;
+      $("b-restore-box").hidden = false;
+    };
+    leser.onerror = function () { berichtFehler("Die Datei konnte nicht gelesen werden."); };
+    leser.readAsText(datei);
+  }
+
+  function sicherungUebernehmen() {
+    if (!restoreDaten) return;
+    var liste = laden();
+    if (liste === null) { berichtFehler("Der Speicher im Browser ist nicht erreichbar."); return; }
+    var neu = liste.concat(restoreDaten.neue);
+    if (!sichern(neu)) { berichtFehler("Speichern fehlgeschlagen. Der Speicher im Browser ist voll oder gesperrt."); return; }
+    if (restoreDaten.einst) einstSichern(restoreDaten.einst);
+    var n = restoreDaten.neue.length;
+    restoreDaten = null;
+    $("b-restore-box").hidden = true;
+    standAnzeigen();
+    berichtZeichnen();
+    erfolgZeigen("Datensicherung übernommen: " + n + (n === 1 ? " Eintrag" : " Einträge") + " hinzugefügt");
+  }
+
+  function sicherungVerwerfen() {
+    restoreDaten = null;
+    $("b-restore-box").hidden = true;
+  }
+
+  /* --- Hinweis nach Monatsende --- */
+
+  function vormonat() {
+    var h = heuteMonat();
+    var d = new Date(h.jahr, h.monat - 1, 1);
+    return { jahr: d.getFullYear(), monat: d.getMonth() };
+  }
+
+  function monatshinweisAktualisieren() {
+    var box = $("monatshinweis");
+    var v = vormonat();
+    var key = monatsSchluessel(v.jahr, v.monat);
+    if (berichteLaden()[key] || eintraegeImMonat(v.jahr, v.monat).length === 0) { box.hidden = true; return; }
+    $("monatshinweis-text").textContent = "Der Monat " + monatsName(v.jahr, v.monat) + " ist vorbei. Bericht für den Arzt erstellen?";
+    box.hidden = false;
+  }
+
+  function hinweisZumBericht() {
+    berichtMonat = vormonat();
+    ansichtZeigen("bericht", false);
+  }
+
+  function hinweisAus() {
+    var v = vormonat();
+    berichtMarkieren(monatsSchluessel(v.jahr, v.monat));
+    monatshinweisAktualisieren();
+  }
+
+  /* ---------- Ansichten ---------- */
+
+  var ANSICHTEN = ["eintragen", "verlauf", "bericht", "einstellungen"];
+
+  function ansichtZeigen(name, intern) {
+    if (editId && !intern) bearbeitungBeenden();
+    ANSICHTEN.forEach(function (a) {
+      $("ansicht-" + a).hidden = a !== name;
+      var n = $("nav-" + a);
+      if (a === name) n.setAttribute("aria-current", "page");
+      else n.removeAttribute("aria-current");
+    });
+    if (name === "verlauf") { loeschenId = null; verlaufZeichnen(); }
+    if (name === "einstellungen") einstellungenFuellen();
+    if (name === "bericht") berichtZeichnen();
+    if (name === "eintragen") monatshinweisAktualisieren();
+    try {
+      var neu = "#" + name;
+      if (location.hash !== neu) location.hash = neu;
+    } catch (e) {}
+  }
+
+  function ansichtAusHash() {
+    var h = "";
+    try { h = location.hash.replace("#", ""); } catch (e) {}
+    ansichtZeigen(ANSICHTEN.indexOf(h) >= 0 ? h : "eintragen", editId !== null);
+  }
+
+  /* ---------- Verdrahtung ---------- */
+
+  $("formular").addEventListener("submit", speichern);
+  $("chips").addEventListener("click", function (ev) {
+    var chip = ev.target.closest(".chip");
+    if (!chip) return;
+    var war = chip.getAttribute("aria-pressed") === "true";
+    zeitpunktSetzen(war ? null : chip.getAttribute("data-wert"));
+  });
+  $("zweite-knopf").addEventListener("click", function () {
+    var offen = $("zweite").hidden;
+    zweiteZeigen(offen);
+    if (offen) $("sys2").focus();
+  });
+  $("abbrechen-knopf").addEventListener("click", function () {
+    bearbeitungBeenden();
+    ansichtZeigen("verlauf", true);
+  });
+  FELDER.forEach(function (id) {
+    $(id).addEventListener("input", function () { $(id).removeAttribute("aria-invalid"); });
+  });
+  ANSICHTEN.forEach(function (a) {
+    $("nav-" + a).addEventListener("click", function () { ansichtZeigen(a, false); });
+  });
+  $("monat-zurueck").addEventListener("click", function () { monatWechseln(-1); });
+  $("monat-vor").addEventListener("click", function () { monatWechseln(1); });
+  $("liste").addEventListener("click", verlaufKlick);
+  $("set-speichern").addEventListener("click", einstellungenSpeichern);
+  $("grenzen-standard").addEventListener("click", grenzenStandard);
+  $("b-zurueck").addEventListener("click", function () { berichtWechseln(-1); });
+  $("b-vor").addEventListener("click", function () { berichtWechseln(1); });
+  $("b-pdf").addEventListener("click", monatBerichtKlick);
+  $("b-csv").addEventListener("click", function () {
+    var J = berichtMonat.jahr, M = berichtMonat.monat;
+    csvAusgeben(eintraegeImMonat(J, M), "messwerte-" + monatsSchluessel(J, M) + ".csv");
+  });
+  $("b-jahr").addEventListener("click", jahrBerichtKlick);
+  $("b-alle").addEventListener("click", function () { csvAusgeben(eintraegeFiltern(function () { return true; }), "messwerte-alle.csv"); });
+  $("b-backup").addEventListener("click", sicherungSpeichern);
+  $("b-restore").addEventListener("change", sicherungWaehlen);
+  $("b-restore-ja").addEventListener("click", sicherungUebernehmen);
+  $("b-restore-nein").addEventListener("click", sicherungVerwerfen);
+  $("mh-bericht").addEventListener("click", hinweisZumBericht);
+  $("mh-aus").addEventListener("click", hinweisAus);
+  window.addEventListener("hashchange", ansichtAusHash);
+
+  datumAnzeigen();
+  setInterval(datumAnzeigen, 30000);
+  standAnzeigen();
+  ansichtAusHash();
+  try {
+    if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
