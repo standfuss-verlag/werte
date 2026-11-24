@@ -1,5 +1,5 @@
 /* Offline-Speicher der App. Bei jeder Änderung an den Dateien die Nummer erhöhen. */
-var VERSION = "messwerte-v1";
+var VERSION = "messwerte-v2";
 var DATEIEN = [
   "./",
   "./index.html",

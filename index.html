@@ -100,6 +100,9 @@ input[aria-invalid="true"] { border-color: var(--err); background: var(--err-bg)
   color: var(--accent);
   font-weight: 600;
 }
+.chips.drei { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.chips.drei .chip { font-size: 16px; line-height: 1.15; padding: 0 3px; }
+.chips + .chips { margin-top: 8px; }
 .link {
   margin-top: 12px;
   min-height: 48px;
@@ -271,7 +274,39 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     <form id="formular" novalidate autocomplete="off">
 
       <fieldset>
-        <legend>Blutdruck</legend>
+        <legend>Blutdruck, linker Arm</legend>
+        <p class="hinweis" style="margin-top:0">Beide Arme sind freiwillig, ein Arm genügt. Oben und unten immer zusammen eintragen.</p>
+        <div class="reihe">
+          <label class="feld"><span>Oben</span>
+            <input class="zahl" type="text" inputmode="numeric" id="sysL" maxlength="3" placeholder="0">
+          </label>
+          <label class="feld"><span>Unten</span>
+            <input class="zahl" type="text" inputmode="numeric" id="diaL" maxlength="3" placeholder="0">
+          </label>
+        </div>
+        <label class="feld"><span>Puls</span>
+          <input class="zahl" type="text" inputmode="numeric" id="pulsL" maxlength="3" placeholder="0">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Blutdruck, rechter Arm</legend>
+        <div class="reihe">
+          <label class="feld"><span>Oben</span>
+            <input class="zahl" type="text" inputmode="numeric" id="sysR" maxlength="3" placeholder="0">
+          </label>
+          <label class="feld"><span>Unten</span>
+            <input class="zahl" type="text" inputmode="numeric" id="diaR" maxlength="3" placeholder="0">
+          </label>
+        </div>
+        <label class="feld"><span>Puls</span>
+          <input class="zahl" type="text" inputmode="numeric" id="pulsR" maxlength="3" placeholder="0">
+        </label>
+      </fieldset>
+
+      <fieldset id="alt-block" hidden>
+        <legend>Frühere Messung ohne Arm</legend>
+        <p class="hinweis" style="margin-top:0">Dieser Eintrag stammt aus der früheren Version, ohne Angabe des Arms. Du kannst die Werte hier ändern oder leeren.</p>
         <div class="reihe">
           <label class="feld"><span>Oben</span>
             <input class="zahl" type="text" inputmode="numeric" id="sys" maxlength="3" placeholder="0">
@@ -283,22 +318,18 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
         <label class="feld"><span>Puls</span>
           <input class="zahl" type="text" inputmode="numeric" id="puls" maxlength="3" placeholder="0">
         </label>
-
-        <button type="button" class="link" id="zweite-knopf" aria-expanded="false" aria-controls="zweite">+ Zweite Messung (freiwillig)</button>
-        <div id="zweite" hidden>
-          <p class="hinweis">Zweite Messung direkt nach der ersten.</p>
-          <div class="reihe">
-            <label class="feld"><span>Oben</span>
-              <input class="zahl" type="text" inputmode="numeric" id="sys2" maxlength="3" placeholder="0">
-            </label>
-            <label class="feld"><span>Unten</span>
-              <input class="zahl" type="text" inputmode="numeric" id="dia2" maxlength="3" placeholder="0">
-            </label>
-          </div>
-          <label class="feld"><span>Puls</span>
-            <input class="zahl" type="text" inputmode="numeric" id="puls2" maxlength="3" placeholder="0">
+        <p class="hinweis">Zweite Messung (früher):</p>
+        <div class="reihe">
+          <label class="feld"><span>Oben</span>
+            <input class="zahl" type="text" inputmode="numeric" id="sys2" maxlength="3" placeholder="0">
+          </label>
+          <label class="feld"><span>Unten</span>
+            <input class="zahl" type="text" inputmode="numeric" id="dia2" maxlength="3" placeholder="0">
           </label>
         </div>
+        <label class="feld"><span>Puls</span>
+          <input class="zahl" type="text" inputmode="numeric" id="puls2" maxlength="3" placeholder="0">
+        </label>
       </fieldset>
 
       <fieldset>
@@ -307,6 +338,28 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
           <input class="zahl" type="text" inputmode="numeric" id="bz" maxlength="3" placeholder="0" aria-label="Blutzucker in mg/dl">
           <span class="einheit">mg/dl</span>
         </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Cholesterin <span style="font-weight:400;font-size:16px;color:var(--muted)">(freiwillig)</span></legend>
+        <label class="feld"><span>Gesamt</span>
+          <div class="mit-einheit">
+            <input class="zahl" type="text" inputmode="numeric" id="chol" maxlength="3" placeholder="0" aria-label="Gesamt in mg/dl">
+            <span class="einheit">mg/dl</span>
+          </div>
+        </label>
+        <label class="feld"><span>LDL</span>
+          <div class="mit-einheit">
+            <input class="zahl" type="text" inputmode="numeric" id="ldl" maxlength="3" placeholder="0" aria-label="LDL in mg/dl">
+            <span class="einheit">mg/dl</span>
+          </div>
+        </label>
+        <label class="feld"><span>HDL</span>
+          <div class="mit-einheit">
+            <input class="zahl" type="text" inputmode="numeric" id="hdl" maxlength="3" placeholder="0" aria-label="HDL in mg/dl">
+            <span class="einheit">mg/dl</span>
+          </div>
+        </label>
       </fieldset>
 
       <fieldset>
@@ -319,15 +372,17 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
 
       <fieldset>
         <legend>Zeitpunkt <span style="font-weight:400;font-size:16px;color:var(--muted)">(freiwillig)</span></legend>
-        <div class="chips" id="chips">
+        <div class="chips drei" id="chips-tag">
           <button type="button" class="chip" aria-pressed="false" data-wert="morgens">morgens</button>
           <button type="button" class="chip" aria-pressed="false" data-wert="mittags">mittags</button>
           <button type="button" class="chip" aria-pressed="false" data-wert="abends">abends</button>
+        </div>
+        <div class="chips drei" id="chips-essen">
           <button type="button" class="chip" aria-pressed="false" data-wert="nüchtern">nüchtern</button>
           <button type="button" class="chip" aria-pressed="false" data-wert="vor dem Essen">vor dem Essen</button>
           <button type="button" class="chip" aria-pressed="false" data-wert="nach dem Essen">nach dem Essen</button>
         </div>
-        <p class="hinweis">Nochmal antippen, um die Auswahl zu entfernen.</p>
+        <p class="hinweis">Oben die Tageszeit, unten das Essen. Beides lässt sich zusammen wählen. Nochmal antippen, um eine Auswahl zu entfernen.</p>
       </fieldset>
 
       <fieldset>
@@ -364,7 +419,7 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     </div>
     <p class="anzahl" id="b-anzahl"></p>
     <div id="b-tabelle"></div>
-    <p class="kleintext" id="b-fussnote" hidden>Zweite Messungen zählen als eigene Messwerte.</p>
+    <p class="kleintext" id="b-fussnote" hidden>Linker und rechter Arm werden getrennt ausgewertet.</p>
 
     <div id="b-fehler" class="fehlerbox" role="alert" hidden></div>
     <div class="aktionen">
@@ -409,7 +464,7 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     <fieldset>
       <legend>Pflichtangaben</legend>
       <p class="hinweis">Ohne Haken genügt ein beliebiger Messwert pro Eintrag.</p>
-      <label class="haken"><input type="checkbox" id="pf-bd">Blutdruck immer verlangen</label>
+      <label class="haken"><input type="checkbox" id="pf-bd">Blutdruck immer verlangen (ein Arm genügt)</label>
       <label class="haken"><input type="checkbox" id="pf-puls">Puls immer verlangen</label>
       <label class="haken"><input type="checkbox" id="pf-bz">Blutzucker immer verlangen</label>
       <label class="haken"><input type="checkbox" id="pf-gewicht">Gewicht immer verlangen</label>
@@ -447,6 +502,9 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     dia:     { min: 30,  max: 160, name: "Unten" },
     puls:    { min: 30,  max: 220, name: "Puls" },
     bz:      { min: 20,  max: 600, name: "Blutzucker" },
+    chol:    { min: 50,  max: 600, name: "Gesamtcholesterin" },
+    ldl:     { min: 10,  max: 500, name: "LDL" },
+    hdl:     { min: 5,   max: 200, name: "HDL" },
     gewicht: { min: 20,  max: 300, name: "Gewicht" }
   };
 
@@ -456,7 +514,10 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     bzNuLeicht: 100, bzNuErh: 126,
     bzNachLeicht: 140, bzNachErh: 200,
     bzSonstErh: 200,
-    bzUnter: null
+    bzUnter: null,
+    cholLeicht: 200, cholErh: 240,
+    ldlLeicht: 115, ldlErh: 130,
+    hdlUnter: 40
   };
   var STANDARD_PFLICHT = { bd: false, puls: false, bz: false, gewicht: false };
   var STUFE_TEXT = ["im Bereich", "leicht erhöht", "erhöht"];
@@ -486,6 +547,17 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     ]},
     { titel: "Blutzucker, alle Zeitpunkte", felder: [
       { key: "bzUnter", label: "Niedrig, wenn unter (freiwillig)", einheit: "mg/dl", optional: true }
+    ]},
+    { titel: "Cholesterin gesamt", felder: [
+      { key: "cholLeicht", label: "Leicht erhöht ab", einheit: "mg/dl" },
+      { key: "cholErh",    label: "Erhöht ab", einheit: "mg/dl" }
+    ]},
+    { titel: "LDL-Cholesterin", hinweis: "Der richtige Zielwert hängt vom persönlichen Risiko ab, zum Beispiel unter 115, unter 100 oder unter 70. Bitte mit dem Arzt klären.", felder: [
+      { key: "ldlLeicht", label: "Leicht erhöht ab", einheit: "mg/dl" },
+      { key: "ldlErh",    label: "Erhöht ab", einheit: "mg/dl" }
+    ]},
+    { titel: "HDL-Cholesterin", hinweis: "Üblich: unter 40 bei Männern, unter 50 bei Frauen gilt als niedrig.", felder: [
+      { key: "hdlUnter", label: "Niedrig, wenn unter", einheit: "mg/dl" }
     ]}
   ];
 
@@ -496,7 +568,9 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     ["pulsUnter", "pulsUeber", "Puls: \"niedrig\" muss unter dem oberen Wert liegen."],
     ["bzNuLeicht", "bzNuErh", "Blutzucker nüchtern: \"leicht erhöht ab\" muss kleiner sein als \"erhöht ab\"."],
     ["bzNachLeicht", "bzNachErh", "Blutzucker nach dem Essen: \"leicht erhöht ab\" muss kleiner sein als \"erhöht ab\"."],
-    ["bzUnter", "bzNuLeicht", "Blutzucker: \"niedrig\" muss unter \"nüchtern leicht erhöht ab\" liegen."]
+    ["bzUnter", "bzNuLeicht", "Blutzucker: \"niedrig\" muss unter \"nüchtern leicht erhöht ab\" liegen."],
+    ["cholLeicht", "cholErh", "Cholesterin gesamt: \"leicht erhöht ab\" muss kleiner sein als \"erhöht ab\"."],
+    ["ldlLeicht", "ldlErh", "LDL: \"leicht erhöht ab\" muss kleiner sein als \"erhöht ab\"."]
   ];
 
   var editId = null;
@@ -598,6 +672,45 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
 
   function dez(n) { return String(n).replace(".", ","); }
 
+  var TAGE = ["morgens", "mittags", "abends"];
+  var ESSEN = ["nüchtern", "vor dem Essen", "nach dem Essen"];
+
+  /* Tageszeit und Essen getrennt. Alte Einträge hatten nur einen Wert in "zeitpunkt". */
+  function zeitpunktTeile(e) {
+    var tag = e.tag || null, essen = e.essen || null;
+    if (!tag && !essen && e.zeitpunkt) {
+      if (TAGE.indexOf(e.zeitpunkt) >= 0) tag = e.zeitpunkt;
+      else if (ESSEN.indexOf(e.zeitpunkt) >= 0) essen = e.zeitpunkt;
+    }
+    return { tag: tag, essen: essen };
+  }
+
+  function zeitpunktText(e) {
+    var z = zeitpunktTeile(e);
+    return [z.tag, z.essen].filter(Boolean).join(", ");
+  }
+
+  /* Alle Blutdruck-Messungen eines Eintrags: linker Arm, rechter Arm, alte Werte ohne Arm. */
+  function bdMessungen(e) {
+    var m = [];
+    function add(arm, s, d, p, zweite) {
+      if (s != null || d != null || p != null) {
+        m.push({ arm: arm, sys: s == null ? null : s, dia: d == null ? null : d, puls: p == null ? null : p, zweite: zweite });
+      }
+    }
+    add("links", e.sysL, e.diaL, e.pulsL, false);
+    add("rechts", e.sysR, e.diaR, e.pulsR, false);
+    add(null, e.sys, e.dia, e.puls, false);
+    add(null, e.sys2, e.dia2, e.puls2, true);
+    return m;
+  }
+
+  function armLabel(m) {
+    if (m.arm === "links") return ", linker Arm";
+    if (m.arm === "rechts") return ", rechter Arm";
+    return m.zweite ? ", zweite Messung" : "";
+  }
+
   function datumText(d) {
     var tag = d.toLocaleDateString("de-DE", { weekday: "short" });
     var datum = d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -634,9 +747,29 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     return { stufe: 0, text: STUFE_TEXT[0] };
   }
 
+  function bewerteChol(v) {
+    var g = einst().grenzen;
+    if (v >= g.cholErh) return { stufe: 2, text: STUFE_TEXT[2] };
+    if (v >= g.cholLeicht) return { stufe: 1, text: STUFE_TEXT[1] };
+    return { stufe: 0, text: STUFE_TEXT[0] };
+  }
+
+  function bewerteLdl(v) {
+    var g = einst().grenzen;
+    if (v >= g.ldlErh) return { stufe: 2, text: STUFE_TEXT[2] };
+    if (v >= g.ldlLeicht) return { stufe: 1, text: STUFE_TEXT[1] };
+    return { stufe: 0, text: STUFE_TEXT[0] };
+  }
+
+  function bewerteHdl(v) {
+    var g = einst().grenzen;
+    if (v < g.hdlUnter) return { stufe: 1, text: "niedrig" };
+    return { stufe: 0, text: STUFE_TEXT[0] };
+  }
+
   /* ---------- Formular ---------- */
 
-  var FELDER = ["sys", "dia", "puls", "sys2", "dia2", "puls2", "bz", "gewicht"];
+  var FELDER = ["sysL", "diaL", "pulsL", "sysR", "diaR", "pulsR", "sys", "dia", "puls", "sys2", "dia2", "puls2", "bz", "chol", "ldl", "hdl", "gewicht"];
 
   function datumAnzeigen() {
     if (editId) return;
@@ -684,9 +817,16 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     felderMarkieren([]);
   }
 
+  function bereichKey(id) { return /^(sys|dia|puls)(L|R|2)$/.test(id) ? id.slice(0, -1) : id; }
+
+  function feldZusatz(id) {
+    var m = /^(?:sys|dia|puls)(L|R|2)$/.exec(id);
+    if (!m) return "";
+    return m[1] === "L" ? " (linker Arm)" : (m[1] === "R" ? " (rechter Arm)" : " (frühere zweite Messung)");
+  }
+
   function lesen(id, ganz) {
-    var basis = id.replace(/2$/, "");
-    return { id: id, wert: zahl($(id).value, ganz), bereich: BEREICHE[basis] };
+    return { id: id, wert: zahl($(id).value, ganz), bereich: BEREICHE[bereichKey(id)] };
   }
 
   function pruefen() {
@@ -695,13 +835,13 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     function fehler(text, id) { meldungen.push(text); if (id) ids.push(id); }
 
     var werte = {};
-    ["sys", "dia", "puls", "sys2", "dia2", "puls2", "bz"].forEach(function (id) { werte[id] = lesen(id, true); });
+    ["sysL", "diaL", "pulsL", "sysR", "diaR", "pulsR", "sys", "dia", "puls", "sys2", "dia2", "puls2", "bz", "chol", "ldl", "hdl"].forEach(function (id) { werte[id] = lesen(id, true); });
     werte.gewicht = lesen("gewicht", false);
 
     Object.keys(werte).forEach(function (id) {
       var e = werte[id];
       if (e.wert === null) return;
-      var label = e.bereich.name + (/2$/.test(id) ? " (zweite Messung)" : "");
+      var label = e.bereich.name + feldZusatz(id);
       if (isNaN(e.wert)) {
         fehler(label + ": nur Zahlen eintragen.", id);
       } else if (e.wert < e.bereich.min || e.wert > e.bereich.max) {
@@ -714,48 +854,56 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
       if ((wa === null) !== (wb === null)) {
         fehler(text, wa === null ? a : b);
       } else if (wa !== null && wb !== null && !isNaN(wa) && !isNaN(wb) && wa <= wb) {
-        fehler("Der obere Wert muss größer sein als der untere.", a);
+        fehler("Der obere Wert muss größer sein als der untere" + feldZusatz(a) + ".", a);
       }
     }
-    paar("sys", "dia", "Blutdruck: oberen und unteren Wert zusammen eintragen.");
-    paar("sys2", "dia2", "Zweite Messung: oberen und unteren Wert zusammen eintragen.");
+    paar("sysL", "diaL", "Linker Arm: oberen und unteren Wert zusammen eintragen.");
+    paar("sysR", "diaR", "Rechter Arm: oberen und unteren Wert zusammen eintragen.");
+    paar("sys", "dia", "Frühere Messung ohne Arm: oberen und unteren Wert zusammen eintragen.");
+    paar("sys2", "dia2", "Frühere zweite Messung: oberen und unteren Wert zusammen eintragen.");
 
     var pf = einst().pflicht;
-    if (pf.bd && werte.sys.wert === null && werte.dia.wert === null) fehler("Blutdruck ist als Pflichtangabe eingestellt.", "sys");
-    if (pf.puls && werte.puls.wert === null) fehler("Puls ist als Pflichtangabe eingestellt.", "puls");
+    function hat(id) { return werte[id].wert !== null; }
+    if (pf.bd && !["sysL", "diaL", "sysR", "diaR", "sys", "dia"].some(hat)) fehler("Blutdruck ist als Pflichtangabe eingestellt. Ein Arm genügt.", "sysL");
+    if (pf.puls && !["pulsL", "pulsR", "puls"].some(hat)) fehler("Puls ist als Pflichtangabe eingestellt.", "pulsL");
     if (pf.bz && werte.bz.wert === null) fehler("Blutzucker ist als Pflichtangabe eingestellt.", "bz");
     if (pf.gewicht && werte.gewicht.wert === null) fehler("Gewicht ist als Pflichtangabe eingestellt.", "gewicht");
 
-    var hatWert = ["sys", "dia", "puls", "bz", "gewicht"].some(function (id) {
+    var hatWert = ["sysL", "diaL", "pulsL", "sysR", "diaR", "pulsR", "sys", "dia", "puls", "bz", "chol", "ldl", "hdl", "gewicht"].some(function (id) {
       return werte[id].wert !== null && !isNaN(werte[id].wert);
     });
     if (!hatWert && meldungen.length === 0) {
-      fehler("Trage mindestens einen Messwert ein.", "sys");
+      fehler("Trage mindestens einen Messwert ein.", "sysL");
     }
     return { meldungen: meldungen, ids: ids, werte: werte };
   }
 
   function gewaehlterZeitpunkt() {
-    var an = document.querySelector("#chips .chip[aria-pressed='true']");
-    return an ? an.getAttribute("data-wert") : null;
+    function wahl(reihe) {
+      var an = document.querySelector("#" + reihe + " .chip[aria-pressed='true']");
+      return an ? an.getAttribute("data-wert") : null;
+    }
+    return { tag: wahl("chips-tag"), essen: wahl("chips-essen") };
   }
 
-  function zeitpunktSetzen(wert) {
-    document.querySelectorAll("#chips .chip").forEach(function (c) {
-      c.setAttribute("aria-pressed", c.getAttribute("data-wert") === wert ? "true" : "false");
-    });
+  function zeitpunktSetzen(tag, essen) {
+    function setze(reihe, wert) {
+      document.querySelectorAll("#" + reihe + " .chip").forEach(function (c) {
+        c.setAttribute("aria-pressed", wert !== null && c.getAttribute("data-wert") === wert ? "true" : "false");
+      });
+    }
+    setze("chips-tag", tag || null);
+    setze("chips-essen", essen || null);
   }
 
-  function zweiteZeigen(offen) {
-    $("zweite").hidden = !offen;
-    $("zweite-knopf").setAttribute("aria-expanded", offen ? "true" : "false");
-    $("zweite-knopf").textContent = offen ? "− Zweite Messung ausblenden" : "+ Zweite Messung (freiwillig)";
+  function altZeigen(offen) {
+    $("alt-block").hidden = !offen;
   }
 
   function formularLeeren() {
     FELDER.concat(["notiz"]).forEach(function (id) { $(id).value = ""; });
-    zeitpunktSetzen(null);
-    zweiteZeigen(false);
+    zeitpunktSetzen(null, null);
+    altZeigen(false);
     fehlerLoeschen();
   }
 
@@ -779,8 +927,9 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
       $(f).value = (v === null || v === undefined) ? "" : (f === "gewicht" ? dez(v) : String(v));
     });
     $("notiz").value = e.notiz || "";
-    zeitpunktSetzen(e.zeitpunkt);
-    zweiteZeigen(e.sys2 != null || e.dia2 != null || e.puls2 != null);
+    var zt = zeitpunktTeile(e);
+    zeitpunktSetzen(zt.tag, zt.essen);
+    altZeigen(e.sys != null || e.dia != null || e.puls != null || e.sys2 != null || e.dia2 != null || e.puls2 != null);
     $("eintrag-titel").textContent = "Eintrag ändern";
     $("datum").textContent = "Eingetragen am " + datumText(new Date(e.zeit));
     $("speichern-knopf").textContent = "Änderungen speichern";
@@ -810,12 +959,16 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
 
     var w = ergebnis.werte;
     var jetzt = new Date();
+    var zw = gewaehlterZeitpunkt();
     var daten = {
+      sysL: w.sysL.wert, diaL: w.diaL.wert, pulsL: w.pulsL.wert,
+      sysR: w.sysR.wert, diaR: w.diaR.wert, pulsR: w.pulsR.wert,
       sys: w.sys.wert, dia: w.dia.wert, puls: w.puls.wert,
       sys2: w.sys2.wert, dia2: w.dia2.wert, puls2: w.puls2.wert,
       bz: w.bz.wert,
+      chol: w.chol.wert, ldl: w.ldl.wert, hdl: w.hdl.wert,
       gewicht: w.gewicht.wert,
-      zeitpunkt: gewaehlterZeitpunkt(),
+      tag: zw.tag, essen: zw.essen, zeitpunkt: null,
       notiz: $("notiz").value.trim() || null
     };
 
@@ -889,23 +1042,29 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
   function karteBauen(e) {
     var k = el("article", "karte");
     var d = new Date(e.zeit);
-    var kopf = datumText(d) + (e.zeitpunkt ? ", " + e.zeitpunkt : "");
+    var zt = zeitpunktText(e);
+    var kopf = datumText(d) + (zt ? ", " + zt : "");
     k.appendChild(el("div", "kopf", kopf));
 
-    if (e.sys != null && e.dia != null) {
-      k.appendChild(zeileBauen("Blutdruck", e.sys + " / " + e.dia, bewerteBlutdruck(e.sys, e.dia)));
-    }
-    if (e.puls != null) {
-      k.appendChild(zeileBauen("Puls", String(e.puls), bewertePuls(e.puls)));
-    }
-    if (e.sys2 != null && e.dia2 != null) {
-      k.appendChild(zeileBauen("Blutdruck, zweite Messung", e.sys2 + " / " + e.dia2, bewerteBlutdruck(e.sys2, e.dia2)));
-    }
-    if (e.puls2 != null) {
-      k.appendChild(zeileBauen("Puls, zweite Messung", String(e.puls2), bewertePuls(e.puls2)));
-    }
+    bdMessungen(e).forEach(function (m) {
+      if (m.sys != null && m.dia != null) {
+        k.appendChild(zeileBauen("Blutdruck" + armLabel(m), m.sys + " / " + m.dia, bewerteBlutdruck(m.sys, m.dia)));
+      }
+      if (m.puls != null) {
+        k.appendChild(zeileBauen("Puls" + armLabel(m), String(m.puls), bewertePuls(m.puls)));
+      }
+    });
     if (e.bz != null) {
-      k.appendChild(zeileBauen("Blutzucker", e.bz + " mg/dl", bewerteZucker(e.bz, e.zeitpunkt)));
+      k.appendChild(zeileBauen("Blutzucker", e.bz + " mg/dl", bewerteZucker(e.bz, zeitpunktTeile(e).essen)));
+    }
+    if (e.chol != null) {
+      k.appendChild(zeileBauen("Cholesterin gesamt", e.chol + " mg/dl", bewerteChol(e.chol)));
+    }
+    if (e.ldl != null) {
+      k.appendChild(zeileBauen("LDL-Cholesterin", e.ldl + " mg/dl", bewerteLdl(e.ldl)));
+    }
+    if (e.hdl != null) {
+      k.appendChild(zeileBauen("HDL-Cholesterin", e.hdl + " mg/dl", bewerteHdl(e.hdl)));
     }
     if (e.gewicht != null) {
       k.appendChild(zeileBauen("Gewicht", dez(e.gewicht) + " kg", null));
@@ -994,6 +1153,7 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     if (box.childNodes.length) return;
     GRUPPEN.forEach(function (grp) {
       box.appendChild(el("div", "untertitel", grp.titel));
+      if (grp.hinweis) box.appendChild(el("p", "hinweis", grp.hinweis));
       grp.felder.forEach(function (f) {
         var zeile = el("div", "gz");
         var l = el("label", null, f.label);
@@ -1170,17 +1330,24 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
   }
 
   function sammeln(eintraege) {
-    var a = { sys: [], dia: [], puls: [], bz: [], bzNu: [], bzNach: [], gewicht: [] };
+    var a = { sysL: [], diaL: [], sysR: [], diaR: [], sysO: [], diaO: [], puls: [], bz: [], bzNu: [], bzNach: [],
+      chol: [], ldl: [], hdl: [], gewicht: [] };
     eintraege.forEach(function (e) {
-      if (e.sys != null && e.dia != null) { a.sys.push(e.sys); a.dia.push(e.dia); }
-      if (e.sys2 != null && e.dia2 != null) { a.sys.push(e.sys2); a.dia.push(e.dia2); }
-      if (e.puls != null) a.puls.push(e.puls);
-      if (e.puls2 != null) a.puls.push(e.puls2);
+      bdMessungen(e).forEach(function (m) {
+        var so = m.arm === "links" ? a.sysL : (m.arm === "rechts" ? a.sysR : a.sysO);
+        var du = m.arm === "links" ? a.diaL : (m.arm === "rechts" ? a.diaR : a.diaO);
+        if (m.sys != null && m.dia != null) { so.push(m.sys); du.push(m.dia); }
+        if (m.puls != null) a.puls.push(m.puls);
+      });
       if (e.bz != null) {
         a.bz.push(e.bz);
-        if (e.zeitpunkt === "nüchtern") a.bzNu.push(e.bz);
-        else if (e.zeitpunkt === "nach dem Essen") a.bzNach.push(e.bz);
+        var essen = zeitpunktTeile(e).essen;
+        if (essen === "nüchtern") a.bzNu.push(e.bz);
+        else if (essen === "nach dem Essen") a.bzNach.push(e.bz);
       }
+      if (e.chol != null) a.chol.push(e.chol);
+      if (e.ldl != null) a.ldl.push(e.ldl);
+      if (e.hdl != null) a.hdl.push(e.hdl);
       if (e.gewicht != null) a.gewicht.push(e.gewicht);
     });
     return a;
@@ -1189,12 +1356,19 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
   function auswertung(eintraege) {
     var a = sammeln(eintraege);
     return [
-      { titel: "Blutdruck oben", einheit: "mmHg", st: statistik(a.sys), nk: 0 },
-      { titel: "Blutdruck unten", einheit: "mmHg", st: statistik(a.dia), nk: 0 },
+      { titel: "Blutdruck links, oben", einheit: "mmHg", st: statistik(a.sysL), nk: 0 },
+      { titel: "Blutdruck links, unten", einheit: "mmHg", st: statistik(a.diaL), nk: 0 },
+      { titel: "Blutdruck rechts, oben", einheit: "mmHg", st: statistik(a.sysR), nk: 0 },
+      { titel: "Blutdruck rechts, unten", einheit: "mmHg", st: statistik(a.diaR), nk: 0 },
+      { titel: "Blutdruck ohne Arm, oben", einheit: "mmHg", st: statistik(a.sysO), nk: 0 },
+      { titel: "Blutdruck ohne Arm, unten", einheit: "mmHg", st: statistik(a.diaO), nk: 0 },
       { titel: "Puls", einheit: "pro Min.", st: statistik(a.puls), nk: 0 },
       { titel: "Blutzucker, alle", einheit: "mg/dl", st: statistik(a.bz), nk: 0 },
       { titel: "Blutzucker nüchtern", einheit: "mg/dl", st: statistik(a.bzNu), nk: 0 },
       { titel: "Blutzucker nach dem Essen", einheit: "mg/dl", st: statistik(a.bzNach), nk: 0 },
+      { titel: "Cholesterin gesamt", einheit: "mg/dl", st: statistik(a.chol), nk: 0 },
+      { titel: "LDL-Cholesterin", einheit: "mg/dl", st: statistik(a.ldl), nk: 0 },
+      { titel: "HDL-Cholesterin", einheit: "mg/dl", st: statistik(a.hdl), nk: 0 },
       { titel: "Gewicht", einheit: "kg", st: statistik(a.gewicht), nk: 1 }
     ].filter(function (z) { return z.st !== null; });
   }
@@ -1220,35 +1394,47 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
   function eintragZellen(e) {
     var d = new Date(e.zeit);
     var datum = [{ t: WOCHENTAGE[d.getDay()] + " " + kurzDatum(d) + " " + uhrzeit(d), s: 0 }];
-    var zp = [{ t: e.zeitpunkt || "", s: 0 }];
-    var bd = [], puls = [], bz = [], gew = [], notiz = [];
+    var zt = zeitpunktTeile(e);
+    var zp = [];
+    if (zt.tag) zp.push({ t: zt.tag, s: 0 });
+    if (zt.essen) zp.push({ t: zt.essen, s: 0 });
+    var bd = [], puls = [], bz = [], chl = [], gew = [], notiz = [];
     var b;
-    if (e.sys != null && e.dia != null) { b = bewerteBlutdruck(e.sys, e.dia); bd.push({ t: e.sys + " / " + e.dia + marke(b), s: b.stufe }); }
-    if (e.sys2 != null && e.dia2 != null) { b = bewerteBlutdruck(e.sys2, e.dia2); bd.push({ t: "2.: " + e.sys2 + " / " + e.dia2 + marke(b), s: b.stufe }); }
-    if (e.puls != null) { b = bewertePuls(e.puls); puls.push({ t: e.puls + marke(b), s: b.stufe }); }
-    if (e.puls2 != null) { b = bewertePuls(e.puls2); puls.push({ t: "2.: " + e.puls2 + marke(b), s: b.stufe }); }
-    if (e.bz != null) { b = bewerteZucker(e.bz, e.zeitpunkt); bz.push({ t: e.bz + marke(b), s: b ? b.stufe : 0 }); }
+    bdMessungen(e).forEach(function (m) {
+      var vor = m.arm === "links" ? "L: " : (m.arm === "rechts" ? "R: " : (m.zweite ? "2.: " : ""));
+      if (m.sys != null && m.dia != null) { b = bewerteBlutdruck(m.sys, m.dia); bd.push({ t: vor + m.sys + " / " + m.dia + marke(b), s: b.stufe }); }
+      if (m.puls != null) { b = bewertePuls(m.puls); puls.push({ t: vor + m.puls + marke(b), s: b.stufe }); }
+    });
+    if (e.bz != null) { b = bewerteZucker(e.bz, zt.essen); bz.push({ t: e.bz + marke(b), s: b ? b.stufe : 0 }); }
+    if (e.chol != null) { b = bewerteChol(e.chol); chl.push({ t: "Ges. " + e.chol + marke(b), s: b.stufe }); }
+    if (e.ldl != null) { b = bewerteLdl(e.ldl); chl.push({ t: "LDL " + e.ldl + marke(b), s: b.stufe }); }
+    if (e.hdl != null) { b = bewerteHdl(e.hdl); chl.push({ t: "HDL " + e.hdl + marke(b), s: b.stufe }); }
     if (e.gewicht != null) gew.push({ t: dez(e.gewicht), s: 0 });
     if (e.notiz) notiz.push({ t: e.notiz, s: 0 });
-    return [datum, zp, bd, puls, bz, gew, notiz];
+    return [datum, zp, bd, puls, bz, chl, gew, notiz];
   }
 
-  function hinweisText() {
+  function hinweisText(daten) {
     var g = einst().grenzen;
-    var t = "Markierung: (+) leicht erhöht, (++) erhöht, (-) niedrig. Grenzen für Messungen zu Hause: " +
+    var t = "Markierung: (+) leicht erhöht, (++) erhöht, (-) niedrig. L = linker Arm, R = rechter Arm. " +
+      "Grenzen für Messungen zu Hause: " +
       "Blutdruck leicht erhöht ab " + g.bdLeichtSys + "/" + g.bdLeichtDia + ", erhöht ab " + g.bdErhSys + "/" + g.bdErhDia +
       "; Puls über " + g.pulsUeber +
       "; Blutzucker nüchtern leicht erhöht ab " + g.bzNuLeicht + ", erhöht ab " + g.bzNuErh +
       " mg/dl; nach dem Essen ab " + g.bzNachLeicht + " und " + g.bzNachErh +
-      " mg/dl; sonst erhöht ab " + g.bzSonstErh + " mg/dl";
+      " mg/dl; sonst erhöht ab " + g.bzSonstErh + " mg/dl" +
+      "; Cholesterin gesamt leicht erhöht ab " + g.cholLeicht + ", erhöht ab " + g.cholErh +
+      " mg/dl; LDL leicht erhöht ab " + g.ldlLeicht + ", erhöht ab " + g.ldlErh +
+      " mg/dl; HDL niedrig unter " + g.hdlUnter + " mg/dl";
     var nied = [];
     if (g.bdUnterSys !== null) nied.push("Blutdruck oben unter " + g.bdUnterSys);
     if (g.pulsUnter !== null) nied.push("Puls unter " + g.pulsUnter);
     if (g.bzUnter !== null) nied.push("Blutzucker unter " + g.bzUnter + " mg/dl");
     if (nied.length) t += "; niedrig: " + nied.join(", ");
-    t += ". Die Grenzen sind allgemeine Richtwerte und mit dem Arzt abzugleichen. " +
-      "Zweite Messungen sind in der Statistik als eigene Messwerte mitgezählt. " +
-      "Diese Aufstellung ersetzt keine ärztliche Beurteilung.";
+    t += ". Die Grenzen sind allgemeine Richtwerte und mit dem Arzt abzugleichen. ";
+    var alt = (daten || []).some(function (e) { return bdMessungen(e).some(function (m) { return !m.arm; }); });
+    if (alt) t += "Messungen ohne Armangabe stammen aus einer früheren Version der App. ";
+    t += "Diese Aufstellung ersetzt keine ärztliche Beurteilung.";
     return t;
   }
 
@@ -1256,6 +1442,13 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
 
   function pdfKlasse() {
     return window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : null;
+  }
+
+  function marker(doc, form, cx, cy) {
+    if (form === "quadrat") doc.rect(cx - 0.75, cy - 0.75, 1.5, 1.5, "F");
+    else if (form === "dreieck") doc.triangle(cx, cy - 1, cx - 0.95, cy + 0.8, cx + 0.95, cy + 0.8, "F");
+    else if (form === "kreisHohl") doc.circle(cx, cy, 0.8, "S");
+    else doc.circle(cx, cy, 0.8, "F");
   }
 
   function diagramm(doc, x, y, w, h, o) {
@@ -1270,7 +1463,14 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     [5, 10, 20, 25, 50, 100, 200].some(function (s) { schritt = s; return spanne * 1.2 / s <= 6; });
     ymin = Math.floor((ymin - spanne * 0.08) / schritt) * schritt;
     ymax = Math.ceil((ymax + spanne * 0.08) / schritt) * schritt;
-    var links = x + 11, rechts = x + w - 3, oben = y + 9, unten = y + h - 7;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10);
+    var titelB = doc.getTextWidth(o.titel);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+    var legendeB = 0;
+    o.serien.forEach(function (s) { if (s.punkte.length) legendeB += doc.getTextWidth(s.name) + 9; });
+    var umbruch = legendeB + titelB + 8 > w;
+    var ly = umbruch ? y + 9 : y + 3.9;
+    var links = x + 11, rechts = x + w - 3, oben = y + (umbruch ? 14 : 9), unten = y + h - 7;
     function px(v) { return links + (v - o.xmin) / ((o.xmax - o.xmin) || 1) * (rechts - links); }
     function py(v) { return unten - (v - ymin) / (ymax - ymin) * (unten - oben); }
 
@@ -1305,23 +1505,17 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     });
 
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
-    var legendeB = 0;
-    o.serien.forEach(function (s) { if (s.punkte.length) legendeB += doc.getTextWidth(s.name) + 9; });
-    var lx = x + w - legendeB + 3;
+    var lx = umbruch ? x + 3 : x + w - legendeB + 3;
     o.serien.forEach(function (s) {
       if (!s.punkte.length) return;
       var pts = s.punkte.slice().sort(function (a, b) { return a.x - b.x; });
       doc.setDrawColor(s.farbe[0], s.farbe[1], s.farbe[2]); doc.setLineWidth(0.35);
       doc.setFillColor(s.farbe[0], s.farbe[1], s.farbe[2]);
       for (var i = 1; i < pts.length; i++) doc.line(px(pts[i - 1].x), py(pts[i - 1].y), px(pts[i].x), py(pts[i].y));
-      pts.forEach(function (p) {
-        if (s.form === "quadrat") doc.rect(px(p.x) - 0.75, py(p.y) - 0.75, 1.5, 1.5, "F");
-        else doc.circle(px(p.x), py(p.y), 0.8, "F");
-      });
-      if (s.form === "quadrat") doc.rect(lx - 0.75, y + 2.4, 1.5, 1.5, "F");
-      else doc.circle(lx, y + 3.1, 0.8, "F");
+      pts.forEach(function (p) { marker(doc, s.form, px(p.x), py(p.y)); });
+      marker(doc, s.form, lx, ly - 0.8);
       doc.setFontSize(8); doc.setTextColor(0);
-      doc.text(s.name, lx + 2.5, y + 3.9);
+      doc.text(s.name, lx + 2.5, ly);
       lx += doc.getTextWidth(s.name) + 9;
     });
     doc.setTextColor(0); doc.setDrawColor(0); doc.setLineWidth(0.2);
@@ -1454,22 +1648,30 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     ticks.push({ pos: 1, label: "1" });
     for (var t = 5; t <= tage; t += 5) ticks.push({ pos: t, label: String(t) });
 
-    var oben = [], unten = [], nu = [], sonst = [];
+    var S = { lo: [], lu: [], ro: [], ru: [], oo: [], ou: [] }, nu = [], sonst = [];
     daten.forEach(function (e) {
       var x = zeitX(new Date(e.zeit));
-      if (e.sys != null && e.dia != null) { oben.push({ x: x, y: e.sys }); unten.push({ x: x, y: e.dia }); }
-      if (e.sys2 != null && e.dia2 != null) { oben.push({ x: x + 0.04, y: e.sys2 }); unten.push({ x: x + 0.04, y: e.dia2 }); }
-      if (e.bz != null) (e.zeitpunkt === "nüchtern" ? nu : sonst).push({ x: x, y: e.bz });
+      bdMessungen(e).forEach(function (m) {
+        if (m.sys == null || m.dia == null) return;
+        if (m.arm === "links") { S.lo.push({ x: x, y: m.sys }); S.lu.push({ x: x, y: m.dia }); }
+        else if (m.arm === "rechts") { S.ro.push({ x: x + 0.12, y: m.sys }); S.ru.push({ x: x + 0.12, y: m.dia }); }
+        else { var xo = x + (m.zweite ? 0.24 : 0.06); S.oo.push({ x: xo, y: m.sys }); S.ou.push({ x: xo, y: m.dia }); }
+      });
+      if (e.bz != null) (zeitpunktTeile(e).essen === "nüchtern" ? nu : sonst).push({ x: x, y: e.bz });
     });
 
-    if (oben.length) {
+    if (S.lo.length || S.ro.length || S.oo.length) {
       y = platzOderSeite(doc, y, 58);
       diagramm(doc, 14, y, 182, 56, {
         titel: "Blutdruck im Verlauf (mmHg), Tag im Monat",
         xmin: 1, xmax: tage + 1, ticks: ticks,
         serien: [
-          { name: "oben", punkte: oben, farbe: [11, 87, 208], form: "kreis" },
-          { name: "unten", punkte: unten, farbe: [15, 110, 86], form: "quadrat" }
+          { name: "links oben", punkte: S.lo, farbe: [11, 87, 208], form: "kreis" },
+          { name: "links unten", punkte: S.lu, farbe: [11, 87, 208], form: "quadrat" },
+          { name: "rechts oben", punkte: S.ro, farbe: [15, 110, 86], form: "dreieck" },
+          { name: "rechts unten", punkte: S.ru, farbe: [15, 110, 86], form: "kreisHohl" },
+          { name: "ohne Arm oben", punkte: S.oo, farbe: [90, 90, 90], form: "kreis" },
+          { name: "ohne Arm unten", punkte: S.ou, farbe: [90, 90, 90], form: "quadrat" }
         ],
         linien: [{ y: g.bdLeichtSys, text: "leicht erhöht ab " + g.bdLeichtSys }, { y: g.bdLeichtDia, text: "leicht erhöht ab " + g.bdLeichtDia }]
       });
@@ -1494,16 +1696,17 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     doc.text("Einzelwerte", 14, y + 3);
     y += 6;
     var spalten = [
-      { titel: "Datum", w: 29 }, { titel: "Zeitpunkt", w: 29 }, { titel: "Blutdruck", w: 30 },
-      { titel: "Puls", w: 18 }, { titel: "Blutzucker", w: 23 }, { titel: "kg", w: 13 }, { titel: "Notiz", w: 40 }
+      { titel: "Datum", w: 27 }, { titel: "Zeitpunkt", w: 24 }, { titel: "Blutdruck", w: 30 },
+      { titel: "Puls", w: 19 }, { titel: "Blutzucker", w: 21 }, { titel: "Cholesterin", w: 25 },
+      { titel: "kg", w: 11 }, { titel: "Notiz", w: 25 }
     ];
-    spalten[6].wrap = true;
+    spalten[7].wrap = true;
     spalten[1].wrap = true;
     y = tabelleZeichnen(doc, { x: 14, y: y, spalten: spalten, zeilen: daten.map(eintragZellen) });
 
     y += 5;
     doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(80);
-    var zeilen = doc.splitTextToSize(hinweisText(), 182);
+    var zeilen = doc.splitTextToSize(hinweisText(daten), 182);
     y = platzOderSeite(doc, y, zeilen.length * 3.6 + 2);
     doc.text(zeilen, 14, y + 2);
     doc.setTextColor(0);
@@ -1519,31 +1722,38 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     var y = kopfZeilen(doc, "Blutdruck und Blutzucker", "Jahresübersicht " + J);
 
     var zeilen = [];
-    var bdOben = [], bdUnten = [], bzAlle = [], bzNu = [];
+    var bdLO = [], bdLU = [], bdRO = [], bdRU = [], bzAlle = [], bzNu = [];
+    function paarText(so, su) { return so && su ? fz(so.mittel, 0) + " / " + fz(su.mittel, 0) : ""; }
     for (var m = 0; m < 12; m++) {
       var mm = daten.filter(function (e) { return new Date(e.zeit).getMonth() === m; });
       if (!mm.length) continue;
       var a = sammeln(mm);
-      var so = statistik(a.sys), su = statistik(a.dia), sb = statistik(a.bz), sn = statistik(a.bzNu);
-      if (so) { bdOben.push({ x: m, y: Math.round(so.mittel) }); bdUnten.push({ x: m, y: Math.round(su.mittel) }); }
+      var slo = statistik(a.sysL), slu = statistik(a.diaL), sro = statistik(a.sysR), sru = statistik(a.diaR);
+      var sb = statistik(a.bz), sn = statistik(a.bzNu);
+      if (slo) { bdLO.push({ x: m, y: Math.round(slo.mittel) }); bdLU.push({ x: m, y: Math.round(slu.mittel) }); }
+      if (sro) { bdRO.push({ x: m, y: Math.round(sro.mittel) }); bdRU.push({ x: m, y: Math.round(sru.mittel) }); }
       if (sb) bzAlle.push({ x: m, y: Math.round(sb.mittel) });
       if (sn) bzNu.push({ x: m, y: Math.round(sn.mittel) });
       zeilen.push([
         [{ t: MONATE[m], s: 0 }],
         [{ t: String(mm.length), s: 0 }],
-        [{ t: so ? fz(so.mittel, 0) + " / " + fz(su.mittel, 0) : "", s: 0 }],
+        [{ t: paarText(slo, slu), s: 0 }],
+        [{ t: paarText(sro, sru), s: 0 }],
         [{ t: mittelText(a.puls, 0), s: 0 }],
         [{ t: mittelText(a.bz, 0), s: 0 }],
         [{ t: mittelText(a.bzNu, 0), s: 0 }],
+        [{ t: mittelText(a.chol, 0), s: 0 }],
         [{ t: mittelText(a.gewicht, 1), s: 0 }]
       ]);
     }
     var ges = sammeln(daten);
     zeilen.push([
       [{ t: "Ganzes Jahr", s: 0 }], [{ t: String(daten.length), s: 0 }],
-      [{ t: ges.sys.length ? mittelText(ges.sys, 0) + " / " + mittelText(ges.dia, 0) : "", s: 0 }],
+      [{ t: paarText(statistik(ges.sysL), statistik(ges.diaL)), s: 0 }],
+      [{ t: paarText(statistik(ges.sysR), statistik(ges.diaR)), s: 0 }],
       [{ t: mittelText(ges.puls, 0), s: 0 }], [{ t: mittelText(ges.bz, 0), s: 0 }],
-      [{ t: mittelText(ges.bzNu, 0), s: 0 }], [{ t: mittelText(ges.gewicht, 1), s: 0 }]
+      [{ t: mittelText(ges.bzNu, 0), s: 0 }], [{ t: mittelText(ges.chol, 0), s: 0 }],
+      [{ t: mittelText(ges.gewicht, 1), s: 0 }]
     ]);
 
     doc.setFont("helvetica", "bold"); doc.setFontSize(11);
@@ -1552,21 +1762,25 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     y = tabelleZeichnen(doc, {
       x: 14, y: y,
       spalten: [
-        { titel: "Monat", w: 32 }, { titel: "Einträge", w: 20, align: "right" }, { titel: "Blutdruck", w: 34, align: "right" },
-        { titel: "Puls", w: 20, align: "right" }, { titel: "Blutzucker", w: 26, align: "right" },
-        { titel: "nüchtern", w: 26, align: "right" }, { titel: "Gewicht kg", w: 24, align: "right" }
+        { titel: "Monat", w: 22 }, { titel: "Einträge", w: 16, align: "right" },
+        { titel: "Blutdruck li.", w: 30, align: "right" }, { titel: "Blutdruck re.", w: 30, align: "right" },
+        { titel: "Puls", w: 13, align: "right" }, { titel: "Blutzucker", w: 21, align: "right" },
+        { titel: "nüchtern", w: 17, align: "right" }, { titel: "Chol.", w: 15, align: "right" },
+        { titel: "Gew. kg", w: 18, align: "right" }
       ],
       zeilen: zeilen
     }) + 8;
 
     var ticks = MONATE_KURZ.map(function (n, i) { return { pos: i, label: n }; });
-    if (bdOben.length) {
+    if (bdLO.length || bdRO.length) {
       y = platzOderSeite(doc, y, 58);
       diagramm(doc, 14, y, 182, 56, {
         titel: "Blutdruck, Monatsmittelwerte (mmHg)", xmin: 0, xmax: 11, ticks: ticks,
         serien: [
-          { name: "oben", punkte: bdOben, farbe: [11, 87, 208], form: "kreis" },
-          { name: "unten", punkte: bdUnten, farbe: [15, 110, 86], form: "quadrat" }
+          { name: "links oben", punkte: bdLO, farbe: [11, 87, 208], form: "kreis" },
+          { name: "links unten", punkte: bdLU, farbe: [11, 87, 208], form: "quadrat" },
+          { name: "rechts oben", punkte: bdRO, farbe: [15, 110, 86], form: "dreieck" },
+          { name: "rechts unten", punkte: bdRU, farbe: [15, 110, 86], form: "kreisHohl" }
         ],
         linien: [{ y: g.bdLeichtSys, text: "leicht erhöht ab " + g.bdLeichtSys }, { y: g.bdLeichtDia, text: "leicht erhöht ab " + g.bdLeichtDia }]
       });
@@ -1586,7 +1800,10 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
     }
 
     doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(80);
-    var text = doc.splitTextToSize("Mittelwerte über alle Messwerte des Monats, zweite Messungen als eigene Messwerte mitgezählt. " +
+    var altN = ges.sysO.length;
+    var text = doc.splitTextToSize("Mittelwerte über alle Messwerte des Monats, linker und rechter Arm getrennt. " +
+      "Chol. = Gesamtcholesterin in mg/dl. " +
+      (altN ? "Außerdem " + altN + " Messungen ohne Armangabe (frühere Version), in der Tabelle nicht enthalten. " : "") +
       "Allgemeine Richtwerte, mit dem Arzt abzugleichen. Diese Aufstellung ersetzt keine ärztliche Beurteilung.", 182);
     y = platzOderSeite(doc, y, text.length * 3.6 + 2);
     doc.text(text, 14, y + 2);
@@ -1606,15 +1823,25 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
   }
 
   function csvBauen(eintraege) {
-    var kopf = ["Datum", "Uhrzeit", "Zeitpunkt", "Blutdruck oben", "Blutdruck unten", "Puls",
-      "Blutdruck oben (2. Messung)", "Blutdruck unten (2. Messung)", "Puls (2. Messung)",
-      "Blutzucker mg/dl", "Gewicht kg", "Notiz", "Geändert am"];
+    var hatAlt = eintraege.some(function (e) {
+      return e.sys != null || e.dia != null || e.puls != null || e.sys2 != null || e.dia2 != null || e.puls2 != null;
+    });
+    var kopf = ["Datum", "Uhrzeit", "Tageszeit", "Essen",
+      "Blutdruck oben links", "Blutdruck unten links", "Puls links",
+      "Blutdruck oben rechts", "Blutdruck unten rechts", "Puls rechts"];
+    if (hatAlt) {
+      kopf = kopf.concat(["Blutdruck oben (ohne Arm)", "Blutdruck unten (ohne Arm)", "Puls (ohne Arm)",
+        "Blutdruck oben (2. Messung, ohne Arm)", "Blutdruck unten (2. Messung, ohne Arm)", "Puls (2. Messung, ohne Arm)"]);
+    }
+    kopf = kopf.concat(["Blutzucker mg/dl", "Cholesterin gesamt mg/dl", "LDL mg/dl", "HDL mg/dl", "Gewicht kg", "Notiz", "Geändert am"]);
     var zeilen = [kopf.join(";")];
     eintraege.forEach(function (e) {
       var d = new Date(e.zeit);
-      var f = [langDatum(d), uhrzeit(d), e.zeitpunkt, e.sys, e.dia, e.puls, e.sys2, e.dia2, e.puls2,
-        e.bz, e.gewicht != null ? dez(e.gewicht) : null, e.notiz,
-        e.geaendert ? langDatum(new Date(e.geaendert)) + " " + uhrzeit(new Date(e.geaendert)) : null];
+      var zt = zeitpunktTeile(e);
+      var f = [langDatum(d), uhrzeit(d), zt.tag, zt.essen, e.sysL, e.diaL, e.pulsL, e.sysR, e.diaR, e.pulsR];
+      if (hatAlt) f = f.concat([e.sys, e.dia, e.puls, e.sys2, e.dia2, e.puls2]);
+      f = f.concat([e.bz, e.chol, e.ldl, e.hdl, e.gewicht != null ? dez(e.gewicht) : null, e.notiz,
+        e.geaendert ? langDatum(new Date(e.geaendert)) + " " + uhrzeit(new Date(e.geaendert)) : null]);
       zeilen.push(f.map(csvFeld).join(";"));
     });
     return "﻿" + zeilen.join("\r\n") + "\r\n";
@@ -1623,7 +1850,7 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
   function sicherungBauen() {
     return JSON.stringify({
       format: "messwerte-sicherung",
-      version: 1,
+      version: 2,
       erstellt: new Date().toISOString(),
       eintraege: laden() || [],
       einstellungen: einst()
@@ -1633,7 +1860,9 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
   var FELD_BEREICH = {
     sys: [60, 260], dia: [30, 160], puls: [30, 220],
     sys2: [60, 260], dia2: [30, 160], puls2: [30, 220],
-    bz: [20, 600], gewicht: [20, 300]
+    sysL: [60, 260], diaL: [30, 160], pulsL: [30, 220],
+    sysR: [60, 260], diaR: [30, 160], pulsR: [30, 220],
+    bz: [20, 600], chol: [50, 600], ldl: [10, 500], hdl: [5, 200], gewicht: [20, 300]
   };
 
   function zeitGueltig(s) {
@@ -1653,8 +1882,12 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
       e[k] = k === "gewicht" ? Math.round(v * 10) / 10 : Math.round(v);
     });
     if (!gueltig) return null;
-    if (e.sys === null && e.dia === null && e.puls === null && e.bz === null && e.gewicht === null) return null;
+    var hatWert = ["sysL", "diaL", "pulsL", "sysR", "diaR", "pulsR", "sys", "dia", "puls", "bz", "chol", "ldl", "hdl", "gewicht"]
+      .some(function (k) { return e[k] !== null; });
+    if (!hatWert) return null;
     e.zeitpunkt = ZEITPUNKTE.indexOf(r.zeitpunkt) >= 0 ? r.zeitpunkt : null;
+    e.tag = TAGE.indexOf(r.tag) >= 0 ? r.tag : null;
+    e.essen = ESSEN.indexOf(r.essen) >= 0 ? r.essen : null;
     e.notiz = (typeof r.notiz === "string" && r.notiz.trim()) ? r.notiz.trim().slice(0, 300) : null;
     if (zeitGueltig(r.geaendert)) e.geaendert = new Date(r.geaendert).toISOString();
     return e;
@@ -1913,16 +2146,16 @@ nav button[aria-current="page"] { color: var(--accent); font-weight: 700; box-sh
   /* ---------- Verdrahtung ---------- */
 
   $("formular").addEventListener("submit", speichern);
-  $("chips").addEventListener("click", function (ev) {
-    var chip = ev.target.closest(".chip");
-    if (!chip) return;
-    var war = chip.getAttribute("aria-pressed") === "true";
-    zeitpunktSetzen(war ? null : chip.getAttribute("data-wert"));
-  });
-  $("zweite-knopf").addEventListener("click", function () {
-    var offen = $("zweite").hidden;
-    zweiteZeigen(offen);
-    if (offen) $("sys2").focus();
+  ["chips-tag", "chips-essen"].forEach(function (reihe) {
+    $(reihe).addEventListener("click", function (ev) {
+      var chip = ev.target.closest(".chip");
+      if (!chip) return;
+      var war = chip.getAttribute("aria-pressed") === "true";
+      var zw = gewaehlterZeitpunkt();
+      var wert = war ? null : chip.getAttribute("data-wert");
+      if (reihe === "chips-tag") zeitpunktSetzen(wert, zw.essen);
+      else zeitpunktSetzen(zw.tag, wert);
+    });
   });
   $("abbrechen-knopf").addEventListener("click", function () {
     bearbeitungBeenden();
